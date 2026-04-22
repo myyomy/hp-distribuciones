@@ -1,0 +1,8 @@
+cd C:\Users\rpere\Downloads\Aplicacion\Aplicacion\WIndows
+echo # HP Distribuciones > README.md
+git init
+git add README.md
+git commit -m "init"
+git branch -M main
+git remote add origin https://github.com/myyomy/hpdist-releases.git
+git push -u origin main
