@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HP Distribuciones — Catálogo de Precios</title>
+<meta name="description" content="Catálogo de precios actualizados en tiempo real — HP Distribuciones, Junín Buenos Aires">
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, onSnapshot, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA1PeDSpnLh2M8o9RQ5oDq3z3dYsxdC-NM",
+  authDomain: "hp-distribuciones.firebaseapp.com",
+  projectId: "hp-distribuciones",
+  storageBucket: "hp-distribuciones.firebasestorage.app",
+  messagingSenderId: "10572839956",
+  appId: "1:10572839956:web:45ac1af04a19432da83b01"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+function fmt(n){
+  if(!n||n===0) return '—';
+  return '$'+Number(n).toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:0});
+}
+
+function renderCatalogo(productos){
+  const activos = productos.filter(p => p.pxkg > 0 || p.precio > 0);
+  const quesos  = activos.filter(p => p.tipo === 'Q');
+  const fiambres= activos.filter(p => p.tipo === 'F');
+  const otros   = activos.filter(p => p.tipo !== 'Q' && p.tipo !== 'F');
+
+  const busq = (document.getElementById('busq')?.value || '').toLowerCase().trim();
+  const filtroTipo = document.querySelector('.tab-btn.act')?.dataset.tipo || 'todos';
+
+  let lista = activos.filter(p => {
+    if(filtroTipo === 'Q' && p.tipo !== 'Q') return false;
+    if(filtroTipo === 'F' && p.tipo !== 'F') return false;
+    if(filtroTipo === 'O' && (p.tipo === 'Q' || p.tipo === 'F')) return false;
+    if(busq && !(p.nom||'').toLowerCase().includes(busq)) return false;
+    return true;
+  });
+
+  // contadores tabs
+  document.getElementById('cnt-todos').textContent = activos.length;
+  document.getElementById('cnt-Q').textContent = quesos.length;
+  document.getElementById('cnt-F').textContent = fiambres.length;
+  document.getElementById('cnt-O').textContent = otros.length;
+
+  const grid = document.getElementById('grid');
+  if(lista.length === 0){
+    grid.innerHTML = '<div class="empty">Sin productos para esa búsqueda</div>';
+    return;
+  }
+
+  grid.innerHTML = lista.map(p => {
+    const tieneImg = p.foto && p.foto !== 'null' && p.foto !== '';
+    const tipoBadge = p.tipo === 'Q' ? '<span class="badge badge-q">🧀 Queso</span>'
+                    : p.tipo === 'F' ? '<span class="badge badge-f">🥩 Fiambre</span>'
+                    : '<span class="badge badge-o">📦 Otro</span>';
+    return `
+    <div class="card">
+      <div class="card-img">
+        ${tieneImg
+          ? `<img src="${p.foto}" alt="${p.nom}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'no-img\\'>${p.em||'📦'}</div>'">`
+          : `<div class="no-img">${p.em||'📦'}</div>`
+        }
+        ${tipoBadge}
+      </div>
+      <div class="card-body">
+        <div class="card-nom">${p.nom}</div>
+        <div class="card-precios">
+          ${p.pxkg > 0 ? `<div class="precio-item"><span class="precio-lbl">Precio x kg</span><span class="precio-val">${fmt(p.pxkg)}</span></div>` : ''}
+          ${p.precio > 0 ? `<div class="precio-item"><span class="precio-lbl">Precio aprox.</span><span class="precio-val precio-aprox">${fmt(p.precio)}</span></div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Escuchar cambios en tiempo real
+window._productos = [];
+onSnapshot(collection(db, 'productos'), (snap) => {
+  window._productos = snap.docs.map(d => ({id: d.id, ...d.data()}));
+  renderCatalogo(window._productos);
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('main').style.display = 'block';
+  // Actualizar timestamp
+  const now = new Date();
+  document.getElementById('update-time').textContent =
+    now.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
+});
+
+// Exponer render para filtros interactivos
+window.renderCatalogo = () => renderCatalogo(window._productos);
+</script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0b0b0d;
+  --bg2:     #111115;
+  --surface: #17171c;
+  --border:  #1f1f27;
+  --border2: #2a2a35;
+  --tx:      #f0f0f2;
+  --mu:      #64647a;
+  --am:      #f59e0b;
+  --am2:     #fbbf24;
+  --gr:      #22c55e;
+  --rd:      #ef4444;
+  --pu:      #7c3aed;
+  --bl:      #3b82f6;
+  --radius:  14px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.logo-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1.5px solid var(--border2);
+}
+.logo-txt .empresa {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -.3px;
+  color: var(--tx);
+}
+.logo-txt .tagline {
+  font-size: 10px;
+  color: var(--mu);
+  margin-top: 1px;
+}
+.header-contacto {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.chip-contacto {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--mu);
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all .18s ease;
+}
+.chip-contacto:hover {
+  border-color: var(--am);
+  color: var(--am2);
+  transform: translateY(-1px);
+}
+.chip-contacto.wsp { border-color: rgba(34,197,94,.4); color: var(--gr); }
+.chip-contacto.wsp:hover { background: rgba(34,197,94,.1); }
+
+/* ── HERO STRIP ── */
+.hero {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 20px 12px;
+}
+.hero h1 {
+  font-size: clamp(22px, 4vw, 34px);
+  font-weight: 900;
+  letter-spacing: -.5px;
+  margin-bottom: 6px;
+}
+.hero h1 span { color: var(--am); }
+.hero p {
+  font-size: 13px;
+  color: var(--mu);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dot-live {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gr);
+  display: inline-block;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100%{ box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
+  50%    { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+}
+
+/* ── FILTROS ── */
+.filtros {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px 20px 16px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--mu);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s cubic-bezier(.34,1.2,.64,1);
+  font-family: inherit;
+}
+.tab-btn .cnt {
+  background: var(--border2);
+  border-radius: 20px;
+  padding: 0 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--mu);
+  min-width: 18px;
+  text-align: center;
+}
+.tab-btn:hover { border-color: var(--border2); color: #ccc; transform: translateY(-1px); }
+.tab-btn.act {
+  background: rgba(245,158,11,.12);
+  border-color: rgba(245,158,11,.6);
+  color: var(--am2);
+  --ns1: 0 0 0 1px rgba(245,158,11,.2), 0 3px 12px rgba(245,158,11,.18);
+  --ns2: 0 0 0 1px rgba(245,158,11,.45), 0 5px 18px rgba(245,158,11,.38), 0 0 24px rgba(245,158,11,.1);
+  animation: neonPulse 2.5s ease-in-out infinite;
+}
+.tab-btn.act .cnt { background: rgba(245,158,11,.2); color: var(--am2); }
+@keyframes neonPulse {
+  0%,100% { box-shadow: var(--ns1); }
+  50%     { box-shadow: var(--ns2); }
+}
+.search-wrap {
+  flex: 1;
+  min-width: 220px;
+  position: relative;
+}
+.search-inp {
+  width: 100%;
+  padding: 9px 14px 9px 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--tx);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .15s;
+}
+.search-inp:focus { border-color: rgba(245,158,11,.5); }
+.search-inp::placeholder { color: var(--mu); }
+.search-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* ── GRID DE PRODUCTOS ── */
+.grid-wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px 40px; }
+#grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: all .2s ease;
+}
+.card:hover {
+  border-color: var(--border2);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0,0,0,.4);
+}
+.card-img {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--bg2);
+  overflow: hidden;
+}
+.card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .3s ease;
+}
+.card:hover .card-img img { transform: scale(1.04); }
+.no-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  background: var(--bg2);
+}
+.badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  backdrop-filter: blur(6px);
+}
+.badge-q { background: rgba(245,158,11,.85); color: #000; }
+.badge-f { background: rgba(239,68,68,.85); color: #fff; }
+.badge-o { background: rgba(59,130,246,.85); color: #fff; }
+.card-body { padding: 12px; }
+.card-nom {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--tx);
+  margin-bottom: 8px;
+  line-height: 1.35;
+  min-height: 32px;
+}
+.card-precios { display: flex; flex-direction: column; gap: 4px; }
+.precio-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: var(--bg2);
+}
+.precio-lbl { font-size: 9px; color: var(--mu); text-transform: uppercase; letter-spacing: .4px; }
+.precio-val { font-size: 13px; font-weight: 800; color: var(--am); }
+.precio-aprox { color: #60a5fa; font-size: 12px; }
+
+/* ── LOADER ── */
+#loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border2);
+  border-top-color: var(--am);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#loader p { font-size: 12px; color: var(--mu); }
+
+.empty {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 48px;
+  color: var(--mu);
+  font-size: 13px;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 20px;
+  text-align: center;
+}
+footer p { font-size: 11px; color: var(--mu); }
+footer strong { color: var(--tx); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  #grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .header-contacto { display: none; }
+  .chip-contacto.wsp { display: inline-flex; }
+  .header-contacto { display: flex; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <img class="logo-img"
+           src="https://firebasestorage.googleapis.com/v0/b/hp-distribuciones.firebasestorage.app/o/config%2F1776636430400_login-logo.jpg?alt=media&token=d82833db-fd33-42e8-a4b7-47514960a604"
+           alt="HP Distribuciones"
+           onerror="this.style.display='none'">
+      <div class="logo-txt">
+        <div class="empresa">HP Distribuciones</div>
+        <div class="tagline">Quesos &amp; Fiambres — Junín, Buenos Aires</div>
+      </div>
+    </div>
+    <div class="header-contacto">
+      <a class="chip-contacto wsp" href="https://wa.me/5492364000000" target="_blank">
+        📱 WhatsApp
+      </a>
+      <span class="chip-contacto">📍 Junín, Bs. As.</span>
+      <span class="chip-contacto" style="color:var(--mu);font-size:10px;">
+        ⏱ Actualizado: <span id="update-time">--:--</span>
+      </span>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Catálogo de <span>precios</span></h1>
+  <p>
+    <span class="dot-live"></span>
+    Precios actualizados en tiempo real
+  </p>
+</div>
+
+<!-- FILTROS -->
+<div class="filtros">
+  <div class="tabs">
+    <button class="tab-btn act" data-tipo="todos" onclick="setTipo(this)">
+      Todos <span class="cnt" id="cnt-todos">—</span>
+    </button>
+    <button class="tab-btn" data-tipo="Q" onclick="setTipo(this)">
+      🧀 Quesos <span class="cnt" id="cnt-Q">—</span>
+    </button>
+    <button class="tab-btn" data-tipo="F" onclick="setTipo(this)">
+      🥩 Fiambres <span class="cnt" id="cnt-F">—</span>
+    </button>
+    <button class="tab-btn" data-tipo="O" onclick="setTipo(this)">
+      📦 Otros <span class="cnt" id="cnt-O">—</span>
+    </button>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input id="busq" class="search-inp" placeholder="Buscar producto..."
+           oninput="window.renderCatalogo && window.renderCatalogo()">
+  </div>
+</div>
+
+<!-- GRID -->
+<div class="grid-wrap">
+  <div id="loader">
+    <div class="spinner"></div>
+    <p>Cargando catálogo...</p>
+  </div>
+  <div id="main" style="display:none;">
+    <div id="grid"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong>HP Distribuciones</strong> · Quesos &amp; Fiambres · Junín, Buenos Aires</p>
+  <p style="margin-top:6px;">Para consultas o pedidos escribinos por WhatsApp</p>
+</footer>
+
+<script>
+function setTipo(btn){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('act'));
+  btn.classList.add('act');
+  window.renderCatalogo && window.renderCatalogo();
+}
+</script>
+
+</body>
+</html>
