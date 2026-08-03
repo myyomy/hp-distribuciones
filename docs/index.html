@@ -251,101 +251,114 @@ footer strong{color:var(--tx);}
   <p style="margin-top:6px;">Para consultas o pedidos escribinos por WhatsApp</p>
 </footer>
 
-<!-- FIREBASE + LÓGICA -->
+<!-- FIREBASE: solo conexión y escucha -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyA1PeDSpnLh2M8o9RQ5oDq3z3dYsxdC-NM",
-  authDomain: "hp-distribuciones.firebaseapp.com",
-  projectId: "hp-distribuciones",
-  storageBucket: "hp-distribuciones.firebasestorage.app",
-  messagingSenderId: "10572839956",
-  appId: "1:10572839956:web:45ac1af04a19432da83b01"
-};
-
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-
-function fmt(n){
-  if(!n||n===0) return '—';
-  return '$'+Number(n).toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:0});
-}
-
-function renderCatalogo(productos){
-  const activos  = productos.filter(p => p.pxkg > 0 || p.precio > 0);
-  const quesos   = activos.filter(p => p.tipo === 'Q');
-  const fiambres = activos.filter(p => p.tipo === 'F');
-  const otros    = activos.filter(p => p.tipo !== 'Q' && p.tipo !== 'F');
-
-  const busq = (document.getElementById('busq')?.value || '').toLowerCase().trim();
-  const filtroTipo = document.querySelector('.tab-btn.act')?.dataset.tipo || 'todos';
-
-  let lista = activos.filter(p => {
-    if(filtroTipo === 'Q' && p.tipo !== 'Q') return false;
-    if(filtroTipo === 'F' && p.tipo !== 'F') return false;
-    if(filtroTipo === 'O' && (p.tipo==='Q'||p.tipo==='F')) return false;
-    if(busq && !(p.nom||'').toLowerCase().includes(busq)) return false;
-    return true;
-  });
-
-  document.getElementById('cnt-todos').textContent = activos.length;
-  document.getElementById('cnt-Q').textContent = quesos.length;
-  document.getElementById('cnt-F').textContent = fiambres.length;
-  document.getElementById('cnt-O').textContent = otros.length;
-
-  const grid = document.getElementById('grid');
-  if(lista.length === 0){
-    grid.innerHTML = '<div class="empty">Sin productos para esa búsqueda</div>';
-    return;
-  }
-
-  grid.innerHTML = lista.map(p => {
-    const tieneImg = p.foto && p.foto !== 'null' && p.foto !== '';
-    const tipoBadge = p.tipo==='Q' ? '<span class="badge badge-q">🧀 Queso</span>'
-                    : p.tipo==='F' ? '<span class="badge badge-f">🥩 Fiambre</span>'
-                    : '<span class="badge badge-o">📦 Otro</span>';
-    const enCarrito = window._carrito.some(i => i.id === p.id);
-    const nomSafe   = (p.nom||'').replace(/'/g,"\\'");
-    return `
-    <div class="card">
-      <div class="card-img">
-        ${tieneImg
-          ? `<img src="${p.foto}" alt="${p.nom}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'no-img\\'>${p.em||'📦'}</div>'">`
-          : `<div class="no-img">${p.em||'📦'}</div>`
-        }
-        ${tipoBadge}
-      </div>
-      <div class="card-body">
-        <div class="card-nom">${p.nom}</div>
-        <div class="card-precios">
-          ${p.pxkg > 0 ? `<div class="precio-item"><span class="precio-lbl">Precio x kg</span><span class="precio-val">${fmt(p.pxkg)}</span></div>` : ''}
-          ${p.precio > 0 ? `<div class="precio-item"><span class="precio-lbl">Precio aprox.</span><span class="precio-val precio-aprox">${fmt(p.precio)}</span></div>` : ''}
-        </div>
-        <button class="btn-cart ${enCarrito?'en-carrito':''}" id="btn-${p.id}"
-          onclick="toggleCarrito('${p.id}','${nomSafe}',${p.pxkg||0},${p.precio||0})">
-          ${enCarrito ? '✓ En carrito · Quitar' : '+ Agregar al carrito'}
-        </button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
+const app = initializeApp({
+  apiKey:"AIzaSyA1PeDSpnLh2M8o9RQ5oDq3z3dYsxdC-NM",
+  authDomain:"hp-distribuciones.firebaseapp.com",
+  projectId:"hp-distribuciones",
+  storageBucket:"hp-distribuciones.firebasestorage.app",
+  messagingSenderId:"10572839956",
+  appId:"1:10572839956:web:45ac1af04a19432da83b01"
+});
+const db = getFirestore(app);
 onSnapshot(collection(db,'productos'), snap => {
   window._productos = snap.docs.map(d => ({id:d.id,...d.data()}));
-  renderCatalogo(window._productos);
+  // renderCatalogo está en el script normal — esperar a que esté listo
+  if(typeof window.renderCatalogo === 'function'){
+    window.renderCatalogo();
+  } else {
+    // Por si el script normal todavía no cargó (no debería pasar)
+    window.addEventListener('catalogo-ready', function(){ window.renderCatalogo(); }, {once:true});
+  }
   document.getElementById('loader').style.display = 'none';
   document.getElementById('main').style.display   = 'block';
   const now = new Date();
   document.getElementById('update-time').textContent =
     now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
 });
-
-window.renderCatalogo = () => renderCatalogo(window._productos||[]);
 </script>
 
 <script>
+// ── FMT ──────────────────────────────────────────────────────────────
+function fmt(n){
+  if(!n||n===0) return '—';
+  return '$'+Number(n).toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:0});
+}
+
+// ── RENDER CATÁLOGO ──────────────────────────────────────────────────
+function renderCatalogo(){
+  var productos = window._productos || [];
+  var activos   = productos.filter(function(p){ return p.pxkg > 0 || p.precio > 0; });
+  var quesos    = activos.filter(function(p){ return p.tipo === 'Q'; });
+  var fiambres  = activos.filter(function(p){ return p.tipo === 'F'; });
+  var otros     = activos.filter(function(p){ return p.tipo !== 'Q' && p.tipo !== 'F'; });
+
+  var busqEl = document.getElementById('busq');
+  var busq   = busqEl ? busqEl.value.toLowerCase().trim() : '';
+  var tabAct = document.querySelector('.tab-btn.act');
+  var filtro = tabAct ? (tabAct.dataset.tipo || 'todos') : 'todos';
+
+  var lista = activos.filter(function(p){
+    if(filtro === 'Q' && p.tipo !== 'Q') return false;
+    if(filtro === 'F' && p.tipo !== 'F') return false;
+    if(filtro === 'O' && (p.tipo==='Q'||p.tipo==='F')) return false;
+    if(busq && !(p.nom||'').toLowerCase().includes(busq)) return false;
+    return true;
+  });
+
+  var cntTodos = document.getElementById('cnt-todos');
+  var cntQ     = document.getElementById('cnt-Q');
+  var cntF     = document.getElementById('cnt-F');
+  var cntO     = document.getElementById('cnt-O');
+  if(cntTodos) cntTodos.textContent = activos.length;
+  if(cntQ)     cntQ.textContent     = quesos.length;
+  if(cntF)     cntF.textContent     = fiambres.length;
+  if(cntO)     cntO.textContent     = otros.length;
+
+  var grid = document.getElementById('grid');
+  if(!grid) return;
+
+  if(lista.length === 0){
+    grid.innerHTML = '<div class="empty">Sin productos para esa búsqueda</div>';
+    return;
+  }
+
+  var carrito = window._carrito || [];
+  grid.innerHTML = lista.map(function(p){
+    var tieneImg = p.foto && p.foto !== 'null' && p.foto !== '';
+    var tipoBadge = p.tipo==='Q' ? '<span class="badge badge-q">🧀 Queso</span>'
+                  : p.tipo==='F' ? '<span class="badge badge-f">🥩 Fiambre</span>'
+                  : '<span class="badge badge-o">📦 Otro</span>';
+    var enCarrito = carrito.some(function(i){ return i.id === p.id; });
+    var nomSafe   = (p.nom||'').replace(/\/g,'\\').replace(/'/g,"\'");
+    var imgHtml   = tieneImg
+      ? '<img src="'+p.foto+'" alt="'+p.nom+'" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;no-img&quot;>'+(p.em||'📦')+'</div>'">'
+      : '<div class="no-img">'+(p.em||'📦')+'</div>';
+    return (
+      '<div class="card">'+
+        '<div class="card-img">'+imgHtml+tipoBadge+'</div>'+
+        '<div class="card-body">'+
+          '<div class="card-nom">'+p.nom+'</div>'+
+          '<div class="card-precios">'+
+            (p.pxkg > 0 ? '<div class="precio-item"><span class="precio-lbl">Precio x kg</span><span class="precio-val">'+fmt(p.pxkg)+'</span></div>' : '')+
+            (p.precio > 0 ? '<div class="precio-item"><span class="precio-lbl">Precio aprox.</span><span class="precio-val precio-aprox">'+fmt(p.precio)+'</span></div>' : '')+
+          '</div>'+
+          '<button class="btn-cart '+(enCarrito?'en-carrito':'')+'" id="btn-'+p.id+'" '+
+            'onclick="toggleCarrito(''+p.id+'',''+nomSafe+'','+( p.pxkg||0)+','+(p.precio||0)+')">'+
+            (enCarrito ? '✓ En carrito · Quitar' : '+ Agregar al carrito')+
+          '</button>'+
+        '</div>'+
+      '</div>'
+    );
+  }).join('');
+}
+window.renderCatalogo = renderCatalogo;
+// Disparar evento por si Firebase ya cargó antes que este script
+window.dispatchEvent(new Event('catalogo-ready'));
+
 // ── CARRITO ──────────────────────────────────────────────────────────
 window._carrito = JSON.parse(localStorage.getItem('hp-cat-carrito')||'[]');
 
