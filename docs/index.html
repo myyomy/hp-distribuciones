@@ -266,18 +266,20 @@ const app = initializeApp({
 const db = getFirestore(app);
 onSnapshot(collection(db,'productos'), snap => {
   window._productos = snap.docs.map(d => ({id:d.id,...d.data()}));
-  // renderCatalogo está en el script normal — esperar a que esté listo
-  if(typeof window.renderCatalogo === 'function'){
-    window.renderCatalogo();
-  } else {
-    // Por si el script normal todavía no cargó (no debería pasar)
-    window.addEventListener('catalogo-ready', function(){ window.renderCatalogo(); }, {once:true});
-  }
   document.getElementById('loader').style.display = 'none';
   document.getElementById('main').style.display   = 'block';
   const now = new Date();
   document.getElementById('update-time').textContent =
     now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  // Llamar renderCatalogo — está definido en el script normal que carga antes
+  window.renderCatalogo();
+}, err => {
+  document.getElementById('loader').innerHTML =
+    '<div style="text-align:center;padding:2rem;color:#f87171;">'+
+    '<div style="font-size:32px;margin-bottom:8px;">⚠️</div>'+
+    '<div style="font-size:13px;font-weight:700;">Error al cargar productos</div>'+
+    '<div style="font-size:11px;color:#555;margin-top:6px;">'+err.message+'</div>'+
+    '</div>';
 });
 </script>
 
