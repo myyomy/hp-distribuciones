@@ -691,52 +691,71 @@ function cerrarSesion(){
 </script>
 
 <script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import{getFirestore,collection,onSnapshot}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-const app=initializeApp({apiKey:"AIzaSyA1PeDSpnLh2M8o9RQ5oDq3z3dYsxdC-NM",authDomain:"hp-distribuciones.firebaseapp.com",projectId:"hp-distribuciones",storageBucket:"hp-distribuciones.firebasestorage.app",messagingSenderId:"10572839956",appId:"1:10572839956:web:45ac1af04a19432da83b01"});
-const db=getFirestore(app);
-// ── QUERIES para Mi Cuenta ──────────────────────────────────────
-import{query,where,getDocs}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, onSnapshot, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
+const app = initializeApp({
+  apiKey: "AIzaSyA1PeDSpnLh2M8o9RQ5oDq3z3dYsxdC-NM",
+  authDomain: "hp-distribuciones.firebaseapp.com",
+  projectId: "hp-distribuciones",
+  storageBucket: "hp-distribuciones.firebasestorage.app",
+  messagingSenderId: "10572839956",
+  appId: "1:10572839956:web:45ac1af04a19432da83b01"
+});
+const db = getFirestore(app);
+
+// ── Catálogo en tiempo real ──────────────────────────────────────
+onSnapshot(collection(db, 'productos'), function(snap){
+  window._productos = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+  if(typeof renderCatalogo === 'function') renderCatalogo();
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+  var now = new Date();
+  var el = document.getElementById('update-time');
+  if(el) el.textContent = now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+}, function(err){
+  var loader = document.getElementById('loader');
+  if(loader) loader.innerHTML =
+    '<div style="text-align:center;padding:2rem;color:#f87171;">' +
+    '<div style="font-size:32px;margin-bottom:8px;">⚠️</div>' +
+    '<div style="font-size:13px;font-weight:700;">Error al cargar productos</div>' +
+    '<div style="font-size:11px;color:#555;margin-top:6px;">' + err.message + '</div>' +
+    '</div>';
+});
+
+// ── Mi Cuenta — buscar cliente por nombre ───────────────────────
 window._fbGetClienteByNombre = async function(nombre){
-  // Búsqueda exacta por nombre
-  var q = query(collection(db,'clientes'), where('nom','==',nombre));
-  var snap = await getDocs(q);
-  if(snap.empty) return null;
-  var d = snap.docs[0];
-  return Object.assign({id:d.id}, d.data());
+  try{
+    var q = query(collection(db,'clientes'), where('nom','==',nombre));
+    var snap = await getDocs(q);
+    if(snap.empty) return null;
+    var d = snap.docs[0];
+    return Object.assign({id:d.id}, d.data());
+  }catch(e){ console.warn('_fbGetClienteByNombre:', e); return null; }
 };
 
 window._fbGetClienteByNombreFuzzy = async function(nombre){
-  // Traer todos los clientes y comparar case-insensitive
-  var snap = await getDocs(collection(db,'clientes'));
-  var nomLow = nombre.toLowerCase().trim();
-  var match = null;
-  snap.docs.forEach(function(d){
-    var data = d.data();
-    if((data.nom||'').toLowerCase().trim() === nomLow){
-      match = Object.assign({id:d.id}, data);
-    }
-  });
-  return match;
+  try{
+    var snap = await getDocs(collection(db,'clientes'));
+    var nomLow = nombre.toLowerCase().trim();
+    var match = null;
+    snap.docs.forEach(function(d){
+      var data = d.data();
+      if((data.nom||'').toLowerCase().trim() === nomLow){
+        match = Object.assign({id:d.id}, data);
+      }
+    });
+    return match;
+  }catch(e){ console.warn('_fbGetClienteByNombreFuzzy:', e); return null; }
 };
 
 window._fbGetPedidosCliente = async function(nombreCliente){
-  var q = query(collection(db,'pedidos'), where('cli','==',nombreCliente));
-  var snap = await getDocs(q);
-  return snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+  try{
+    var q = query(collection(db,'pedidos'), where('cli','==',nombreCliente));
+    var snap = await getDocs(q);
+    return snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+  }catch(e){ console.warn('_fbGetPedidosCliente:', e); return []; }
 };
-
-onSnapshot(collection(db,'productos'),function(snap){
-  window._productos=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-  renderCatalogo();
-  document.getElementById('loader').style.display='none';
-  document.getElementById('main-content').style.display='block';
-  var now=new Date();
-  document.getElementById('update-time').textContent=now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-},function(err){
-  document.getElementById('loader').innerHTML='<div style="text-align:center;padding:2rem;color:#f87171;"><div style="font-size:32px;margin-bottom:8px;">⚠️</div><div style="font-size:13px;font-weight:700;">Error al cargar productos</div><div style="font-size:11px;color:#555;margin-top:6px;">'+err.message+'</div></div>';
-});
 </script>
 </body>
 </html>
