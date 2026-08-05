@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
 <title>HP Distribuciones — Catálogo de Precios</title>
 <meta name="description" content="Catálogo de precios actualizados en tiempo real — HP Distribuciones, Junín Buenos Aires">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,7 +11,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{--bg:#0a0a0a;--bg2:#111;--surface:#161616;--border:#222;--border2:#2a2a2a;--tx:#f5f5f5;--mu:#666;--radius:12px;}
 html{scroll-behavior:smooth;}
-body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;-webkit-font-smoothing:antialiased;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overscroll-behavior:none;}
 
 /* ── NAV ── */
 .nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,.92);backdrop-filter:blur(14px);border-bottom:0.5px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;max-width:100%;gap:12px;}
@@ -54,7 +54,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .tab.act{background:#fff;color:#0a0a0a;border-color:#fff;font-weight:700;}
 .tab .n{display:inline-block;padding:1px 5px;font-size:10px;margin-left:3px;color:inherit;opacity:.6;}
 .search-wrap{flex:1;min-width:200px;position:relative;}
-.search-inp{width:100%;padding:9px 14px 9px 36px;border-radius:999px;border:0.5px solid #2a2a2a;background:#111;color:#f5f5f5;font-size:13px;font-family:inherit;outline:none;transition:border-color .15s;}
+.search-inp{width:100%;padding:9px 14px 9px 36px;border-radius:999px;border:0.5px solid #2a2a2a;background:#111;color:#f5f5f5;font-size:16px;font-family:inherit;outline:none;transition:border-color .15s;}
 .search-inp:focus{border-color:#555;}
 .search-inp::placeholder{color:#444;}
 .search-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;color:#444;}
@@ -150,7 +150,98 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .spinner{width:32px;height:32px;border:2px solid #1c1c1c;border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;}
 .empty{grid-column:1/-1;text-align:center;padding:48px;color:#333;font-size:13px;}
 
-@media(max-width:600px){#grid{grid-template-columns:repeat(2,1fr);} .top-actions{flex-direction:column;align-items:flex-start;}}
+/* ── RESPONSIVE MÓVIL ── */
+@media(max-width:768px){
+  /* Nav: logo + botones apilados */
+  .nav{padding:10px 14px;gap:8px;flex-wrap:nowrap;}
+  .nav-logo-img{width:40px;height:40px;border-radius:10px;}
+  .nav-name{font-size:14px;}
+  .nav-sub{display:none;}
+  /* Ocultar "Contactanos" en móvil — está en la sección de abajo */
+  .btn-nav-contacto:last-child{display:none;}
+  /* Botón sesión más compacto */
+  #btn-sesion{padding:7px 12px;font-size:11px;}
+  /* Carrito más compacto */
+  .btn-carrito{padding:8px 12px;font-size:11px;}
+
+  /* Hero más compacto */
+  .hero{padding:28px 16px 20px;}
+  .hero h1{font-size:32px;letter-spacing:-1px;}
+  .hero-sub{font-size:13px;}
+
+  /* Main padding reducido */
+  .main{padding:0 14px 60px;}
+
+  /* Grid 2 columnas */
+  #grid{grid-template-columns:repeat(2,1fr);gap:1px;}
+  .card{padding:12px;}
+  .card-nom{font-size:11px;}
+  .card-info-row{padding:4px 6px;font-size:11px;}
+  .card-info-val{font-size:11px;}
+  .btn-add{font-size:10px;padding:7px 6px;}
+
+  /* Filtros: scroll horizontal */
+  .filtros{flex-wrap:nowrap;overflow-x:auto;padding-bottom:8px;gap:6px;-webkit-overflow-scrolling:touch;}
+  .filtros::-webkit-scrollbar{display:none;}
+  .tab{flex-shrink:0;padding:6px 12px;font-size:11px;}
+  .search-wrap{min-width:160px;flex-shrink:0;}
+
+  /* FAQ: columna */
+  .faq-row{flex-direction:column;gap:6px;padding:14px 0;}
+  .faq-q{min-width:unset;}
+  .faq-a{min-width:unset;}
+
+  /* Contacto: columna */
+  .contacto{padding:32px 0;}
+  .contacto h2{font-size:22px;}
+  .contacto-btns{flex-direction:column;}
+  .btn-wsp-contacto{justify-content:center;}
+
+  /* Drawer carrito: full width en móvil */
+  .cart-drawer{width:100vw;border-left:none;border-top:0.5px solid #1c1c1c;border-radius:20px 20px 0 0;top:auto;height:85vh;}
+
+  /* Modales: full width */
+  .modal-box{border-radius:20px 20px 0 0;max-width:100%;margin-bottom:0;align-self:flex-end;padding:20px;}
+  .modal-overlay{align-items:flex-end;padding:0;}
+  .cuenta-box{border-radius:20px 20px 0 0;max-width:100%;max-height:90vh;align-self:flex-end;}
+  .cuenta-overlay{align-items:flex-end;padding:0;}
+}
+
+@media(max-width:380px){
+  #grid{grid-template-columns:1fr 1fr;}
+  .hero h1{font-size:26px;}
+  .nav-name{font-size:13px;}
+  .btn-carrito{padding:7px 10px;font-size:10px;}
+  #btn-sesion{padding:6px 10px;font-size:10px;}
+}
+
+/* ── MI CUENTA ── */
+.cuenta-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px);}
+.cuenta-overlay.open{display:flex;}
+@keyframes cuentaIn{from{opacity:0;transform:scale(.93) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.cuenta-box{background:#0f0f0f;border:0.5px solid #222;border-radius:20px;padding:0;max-width:480px;width:100%;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;animation:cuentaIn .28s cubic-bezier(.16,1,.3,1);}
+.cuenta-head{padding:20px 22px 16px;border-bottom:0.5px solid #1a1a1a;flex-shrink:0;}
+.cuenta-body{flex:1;overflow-y:auto;padding:16px 22px 20px;}
+.cuenta-login{display:flex;flex-direction:column;gap:10px;}
+.cuenta-inp{width:100%;padding:12px 16px;border-radius:10px;border:0.5px solid #2a2a2a;background:#111;color:#f5f5f5;font-size:16px;font-family:inherit;outline:none;text-align:center;letter-spacing:0;transition:border-color .15s;}
+.cuenta-inp:focus{border-color:#555;}
+.cuenta-inp::placeholder{letter-spacing:0;text-transform:none;color:#333;}
+.btn-cuenta-login{width:100%;padding:13px;border-radius:999px;border:none;background:#fff;color:#0a0a0a;font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;font-family:inherit;}
+.btn-cuenta-login:hover{background:#e5e5e5;}
+.cuenta-error{font-size:12px;color:#f87171;text-align:center;padding:6px;}
+.ped-card{background:#111;border:0.5px solid #1c1c1c;border-radius:12px;padding:14px 16px;margin-bottom:8px;}
+.ped-card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.ped-num{font-size:11px;color:#555;}
+.ped-monto{font-size:16px;font-weight:800;color:#fff;}
+.ped-fecha{font-size:11px;color:#444;}
+.ped-items{font-size:11px;color:#555;line-height:1.5;margin-bottom:8px;}
+.btn-fac{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;border:0.5px solid #2a2a2a;background:transparent;color:#888;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;text-decoration:none;}
+.btn-fac:hover{border-color:#555;color:#fff;}
+.btn-fac.ok{border-color:rgba(34,197,94,.4);color:#4ade80;background:rgba(34,197,94,.06);}
+.btn-fac.ok:hover{background:rgba(34,197,94,.12);}
+.cc-badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;}
+.cc-debe{background:rgba(239,68,68,.1);color:#f87171;border:0.5px solid rgba(239,68,68,.3);}
+.cc-ok{background:rgba(34,197,94,.1);color:#4ade80;border:0.5px solid rgba(34,197,94,.3);}
 </style>
 </head>
 <body>
@@ -216,6 +307,31 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   </div>
 </div>
 
+<!-- MI CUENTA -->
+<div class="cuenta-overlay" id="cuenta-overlay">
+  <div class="cuenta-box">
+    <div class="cuenta-head">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div id="cuenta-head-txt">
+          <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:2px;">Mi cuenta</div>
+          <div style="font-size:11px;color:#555;">Ingresá tu código para ver tus pedidos</div>
+        </div>
+        <button onclick="cerrarCuenta()" style="background:none;border:none;color:#444;font-size:22px;cursor:pointer;line-height:1;">✕</button>
+      </div>
+    </div>
+    <div class="cuenta-body" id="cuenta-body">
+      <div class="cuenta-login">
+        <div style="font-size:13px;color:#555;text-align:center;margin-bottom:4px;">Ingresá tu nombre tal como te tiene registrado HP Distribuciones</div>
+        <input class="cuenta-inp" id="cuenta-codigo" placeholder="Ej: Juan Pérez"
+          style="letter-spacing:0;text-transform:none;"
+          onkeydown="if(event.key==='Enter')loginCuenta()">
+        <div class="cuenta-error" id="cuenta-error" style="display:none;"></div>
+        <button class="btn-cuenta-login" onclick="loginCuenta()">Ver mis pedidos →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav class="nav">
   <div class="nav-logo">
@@ -230,6 +346,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     <button class="btn-carrito" onclick="abrirCarrito()" style="white-space:nowrap;">
       🛒 Mi carrito <span class="cart-n" id="cart-count">0</span>
     </button>
+    <button class="btn-nav-contacto" onclick="abrirCuenta()" id="btn-sesion">👤 Iniciar sesión</button>
     <button class="btn-nav-contacto" onclick="abrirModal()">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" fill="#25D366"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.524 3.659 1.436 5.168L2 22l4.968-1.417A9.956 9.956 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18.182a8.181 8.181 0 01-4.162-1.137l-.299-.178-3.1.884.882-3.07-.195-.316A8.182 8.182 0 1112 20.182z" fill="#25D366"/></svg>
     Contactanos
@@ -402,7 +519,7 @@ function setTipo(btn){
 
 function renderCatalogo(){
   var productos=window._productos||[];
-  var activos=productos.filter(function(p){return p.pxkg>0||p.precio>0;});
+  var activos=productos.filter(function(p){return (p.pxkg>0||p.precio>0)&&!!(p.nom&&p.nom.trim());});
   var busqEl=document.getElementById('busq');
   var busq=busqEl?busqEl.value.toLowerCase().trim():'';
   var tabAct=document.querySelector('.tab.act');
@@ -441,6 +558,136 @@ function renderCatalogo(){
 }
 
 actualizarBadge();
+
+// ── MI CUENTA ────────────────────────────────────────────────────────
+function abrirCuenta(){
+  document.getElementById('cuenta-overlay').classList.add('open');
+  document.getElementById('cuenta-body').innerHTML =
+    '<div class="cuenta-login">' +
+      '<div style="font-size:13px;color:#555;text-align:center;margin-bottom:4px;">Ingresá el código que te dio HP Distribuciones</div>' +
+      '<input class="cuenta-inp" id="cuenta-codigo" placeholder="Ej: Juan Pérez" ' +
+        'style="letter-spacing:0;text-transform:none;" ' +
+        'onkeydown="if(event.key==='Enter')loginCuenta()">' +
+      '<div class="cuenta-error" id="cuenta-error" style="display:none;"></div>' +
+      '<button class="btn-cuenta-login" onclick="loginCuenta()">Ver mis pedidos →</button>' +
+    '</div>';
+  document.getElementById('cuenta-head-txt').innerHTML =
+    '<div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:2px;">Mi cuenta</div>' +
+    '<div style="font-size:11px;color:#555;">Ingresá tu nombre para ver tus pedidos</div>';
+  setTimeout(function(){ var inp=document.getElementById('cuenta-codigo'); if(inp) inp.focus(); }, 100);
+}
+function cerrarCuenta(){ document.getElementById('cuenta-overlay').classList.remove('open'); }
+
+async function loginCuenta(){
+  var nombre = (document.getElementById('cuenta-codigo').value||'').trim();
+  if(!nombre){ mostrarErrorCuenta('Ingresá tu nombre'); return; }
+  if(nombre.length < 2){ mostrarErrorCuenta('El nombre debe tener al menos 2 caracteres'); return; }
+
+  var btn = document.querySelector('.btn-cuenta-login');
+  if(btn){ btn.textContent='Buscando...'; btn.disabled=true; }
+
+  try{
+    // Buscar cliente por nombre exacto en Firestore
+    var cliente = await window._fbGetClienteByNombre(nombre);
+    if(!cliente){
+      // Intentar búsqueda case-insensitive comparando contra todos los clientes
+      cliente = await window._fbGetClienteByNombreFuzzy(nombre);
+    }
+    if(!cliente){
+      mostrarErrorCuenta('No encontramos ese nombre. Revisá que esté escrito igual que en tu cuenta.');
+      if(btn){btn.textContent='Ver mis pedidos →';btn.disabled=false;}
+      return;
+    }
+    var pedidos = await window._fbGetPedidosCliente(cliente.nom);
+    renderCuenta(cliente, pedidos);
+  }catch(e){
+    mostrarErrorCuenta('Error de conexión. Intentá de nuevo.');
+    if(btn){btn.textContent='Ver mis pedidos →';btn.disabled=false;}
+  }
+}
+
+function mostrarErrorCuenta(msg){
+  var el=document.getElementById('cuenta-error');
+  if(el){el.textContent=msg;el.style.display='block';}
+  var btn=document.querySelector('.btn-cuenta-login');
+  if(btn){btn.textContent='Ver mis pedidos →';btn.disabled=false;}
+}
+
+function renderCuenta(cliente, pedidos){
+  var completados = pedidos
+    .filter(function(p){ return p.estado==='Completado'; })
+    .sort(function(a,b){ return (b.fecha||'').localeCompare(a.fecha||''); });
+
+  // Actualizar botón del nav con el primer nombre
+  var btnSesion = document.getElementById('btn-sesion');
+  if(btnSesion) btnSesion.textContent = '👤 ' + (cliente.nom||'').split(' ')[0];
+
+  // Header del modal
+  document.getElementById('cuenta-head-txt').innerHTML =
+    '<div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:2px;">Hola, ' + (cliente.nom||'').split(' ')[0] + ' 👋</div>' +
+    '<div style="font-size:11px;color:#555;">' + completados.length + ' pedido' + (completados.length!==1?'s':'') + ' completado' + (completados.length!==1?'s':'') + '</div>';
+
+  var bodyHTML = '';
+
+  // ── SALDO CC ────────────────────────────────────────────────────
+  var cc = Number(cliente.cc) || 0;
+  if(cc > 0){
+    bodyHTML +=
+      '<div style="background:rgba(239,68,68,.08);border:0.5px solid rgba(239,68,68,.3);border-radius:12px;padding:14px 16px;margin-bottom:16px;">' +
+        '<div style="font-size:10px;color:#f87171;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:6px;">Saldo pendiente</div>' +
+        '<div style="font-size:28px;font-weight:900;color:#f87171;margin-bottom:4px;">$' + cc.toLocaleString('es-AR') + '</div>' +
+        '<div style="font-size:11px;color:#555;">Contactanos para coordinar el pago</div>' +
+      '</div>';
+  } else {
+    bodyHTML +=
+      '<div style="background:rgba(34,197,94,.06);border:0.5px solid rgba(34,197,94,.2);border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">' +
+        '<span style="font-size:20px;">✅</span>' +
+        '<span style="font-size:12px;color:#4ade80;font-weight:600;">Sin deuda pendiente</span>' +
+      '</div>';
+  }
+
+  // ── PEDIDOS — solo fecha, monto y factura ───────────────────────
+  if(completados.length === 0){
+    bodyHTML += '<div style="text-align:center;padding:28px 0;color:#333;font-size:13px;">Sin pedidos completados aún</div>';
+  } else {
+    bodyHTML += '<div style="font-size:10px;color:#444;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:10px;">Historial de pedidos</div>';
+    bodyHTML += completados.map(function(p){
+      var tieneFactura = !!(p.facturaUrl);
+      var facNum = p.fac && p.fac.num ? 'Factura N° ' + p.fac.num : 'Pedido';
+      return (
+        '<div class="ped-card">' +
+          '<div class="ped-card-head">' +
+            '<div>' +
+              '<div class="ped-num">' + facNum + '</div>' +
+              '<div class="ped-monto">$' + (p.monto||0).toLocaleString('es-AR') + '</div>' +
+            '</div>' +
+            '<div style="text-align:right;">' +
+              '<div class="ped-fecha">' + (p.fecha||'') + '</div>' +
+              (tieneFactura
+                ? '<a class="btn-fac ok" style="margin-top:6px;display:inline-flex;" href="' + p.facturaUrl + '" target="_blank">📄 Ver factura</a>'
+                : '<span class="btn-fac" style="margin-top:6px;display:inline-flex;">Sin factura</span>') +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  bodyHTML +=
+    '<button onclick="cerrarSesion()" style="width:100%;padding:10px;margin-top:14px;background:transparent;border:0.5px solid #1c1c1c;border-radius:999px;color:#444;font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;" ' +
+    'onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(239,68,68,.3)'" ' +
+    'onmouseleave="this.style.color='#444';this.style.borderColor='#1c1c1c'">Cerrar sesión</button>';
+
+  document.getElementById('cuenta-body').innerHTML = bodyHTML;
+}
+
+function cerrarSesion(){
+  var btnSesion = document.getElementById('btn-sesion');
+  if(btnSesion) btnSesion.textContent = '👤 Iniciar sesión';
+  abrirCuenta();
+}
+
+
 </script>
 
 <script type="module">
@@ -448,6 +695,38 @@ import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-ap
 import{getFirestore,collection,onSnapshot}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 const app=initializeApp({apiKey:"AIzaSyA1PeDSpnLh2M8o9RQ5oDq3z3dYsxdC-NM",authDomain:"hp-distribuciones.firebaseapp.com",projectId:"hp-distribuciones",storageBucket:"hp-distribuciones.firebasestorage.app",messagingSenderId:"10572839956",appId:"1:10572839956:web:45ac1af04a19432da83b01"});
 const db=getFirestore(app);
+// ── QUERIES para Mi Cuenta ──────────────────────────────────────
+import{query,where,getDocs}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+window._fbGetClienteByNombre = async function(nombre){
+  // Búsqueda exacta por nombre
+  var q = query(collection(db,'clientes'), where('nom','==',nombre));
+  var snap = await getDocs(q);
+  if(snap.empty) return null;
+  var d = snap.docs[0];
+  return Object.assign({id:d.id}, d.data());
+};
+
+window._fbGetClienteByNombreFuzzy = async function(nombre){
+  // Traer todos los clientes y comparar case-insensitive
+  var snap = await getDocs(collection(db,'clientes'));
+  var nomLow = nombre.toLowerCase().trim();
+  var match = null;
+  snap.docs.forEach(function(d){
+    var data = d.data();
+    if((data.nom||'').toLowerCase().trim() === nomLow){
+      match = Object.assign({id:d.id}, data);
+    }
+  });
+  return match;
+};
+
+window._fbGetPedidosCliente = async function(nombreCliente){
+  var q = query(collection(db,'pedidos'), where('cli','==',nombreCliente));
+  var snap = await getDocs(q);
+  return snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+};
+
 onSnapshot(collection(db,'productos'),function(snap){
   window._productos=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
   renderCatalogo();
