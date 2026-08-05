@@ -685,6 +685,29 @@ function cerrarSesion(){
   abrirCuenta();
 }
 
+window.fmt                = fmt;
+window.guardarCarrito     = guardarCarrito;
+window.actualizarBadge    = actualizarBadge;
+window.toggleCarrito      = toggleCarrito;
+window.cambiarQty         = cambiarQty;
+window.quitarDelCarrito   = quitarDelCarrito;
+window.vaciarCarrito      = vaciarCarrito;
+window.abrirCarrito       = abrirCarrito;
+window.cerrarCarrito      = cerrarCarrito;
+window.abrirModal         = abrirModal;
+window.cerrarModal        = cerrarModal;
+window.renderDrawer       = renderDrawer;
+window.enviarCarritoWA    = enviarCarritoWA;
+window.setTipo            = setTipo;
+window.renderCatalogo     = renderCatalogo;
+window.abrirCuenta        = abrirCuenta;
+window.cerrarCuenta       = cerrarCuenta;
+window.loginCuenta        = loginCuenta;
+window.mostrarErrorCuenta = mostrarErrorCuenta;
+window.renderCuenta       = renderCuenta;
+window.cerrarSesion       = cerrarSesion;
+
+if(window._productos && window._productos.length){ renderCatalogo(); }
 
 </script>
 
@@ -705,12 +728,27 @@ const db = getFirestore(app);
 // ── Catálogo en tiempo real ──────────────────────────────────────
 onSnapshot(collection(db, 'productos'), function(snap){
   window._productos = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
-  if(typeof renderCatalogo === 'function') renderCatalogo();
   document.getElementById('loader').style.display = 'none';
   document.getElementById('main-content').style.display = 'block';
   var now = new Date();
   var el = document.getElementById('update-time');
   if(el) el.textContent = now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  // Renderizar — reintentar si el script clásico todavía no terminó de cargar
+  var intentos = 0;
+  (function pintar(){
+    if(typeof window.renderCatalogo === 'function'){
+      try{ window.renderCatalogo(); }
+      catch(e){
+        document.getElementById('grid').innerHTML =
+          '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#f87171;font-size:12px;">Error al mostrar productos: '+e.message+'</div>';
+      }
+    } else if(intentos++ < 30){
+      setTimeout(pintar, 100);
+    } else {
+      document.getElementById('grid').innerHTML =
+        '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#f87171;font-size:12px;">No se pudo iniciar el catálogo. Recargá la página.</div>';
+    }
+  })();
 }, function(err){
   var loader = document.getElementById('loader');
   if(loader) loader.innerHTML =
