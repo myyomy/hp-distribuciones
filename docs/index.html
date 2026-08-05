@@ -567,7 +567,7 @@ function abrirCuenta(){
       '<div style="font-size:13px;color:#555;text-align:center;margin-bottom:4px;">Ingresá el código que te dio HP Distribuciones</div>' +
       '<input class="cuenta-inp" id="cuenta-codigo" placeholder="Ej: Juan Pérez" ' +
         'style="letter-spacing:0;text-transform:none;" ' +
-        'onkeydown="if(event.key==='Enter')loginCuenta()">' +
+        'onkeydown="if(event.key===\'Enter\')loginCuenta()">' +
       '<div class="cuenta-error" id="cuenta-error" style="display:none;"></div>' +
       '<button class="btn-cuenta-login" onclick="loginCuenta()">Ver mis pedidos →</button>' +
     '</div>';
@@ -674,9 +674,7 @@ function renderCuenta(cliente, pedidos){
   }
 
   bodyHTML +=
-    '<button onclick="cerrarSesion()" style="width:100%;padding:10px;margin-top:14px;background:transparent;border:0.5px solid #1c1c1c;border-radius:999px;color:#444;font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;" ' +
-    'onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(239,68,68,.3)'" ' +
-    'onmouseleave="this.style.color='#444';this.style.borderColor='#1c1c1c'">Cerrar sesión</button>';
+    '<button onclick="cerrarSesion()" style="width:100%;padding:10px;margin-top:14px;background:transparent;border:0.5px solid #1c1c1c;border-radius:999px;color:#444;font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;">Cerrar sesión</button>';
 
   document.getElementById('cuenta-body').innerHTML = bodyHTML;
 }
