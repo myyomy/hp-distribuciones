@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
 <title>HP Distribuciones — Catálogo de Precios</title>
 <meta name="description" content="Catálogo de precios actualizados en tiempo real — HP Distribuciones, Junín Buenos Aires">
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HP Catálogo">
+<link rel="apple-touch-icon" href="https://firebasestorage.googleapis.com/v0/b/hp-distribuciones.firebasestorage.app/o/config%2F1776636430400_login-logo.jpg?alt=media&token=d82833db-fd33-42e8-a4b7-47514960a604">
+<link rel="icon" href="https://firebasestorage.googleapis.com/v0/b/hp-distribuciones.firebasestorage.app/o/config%2F1776636430400_login-logo.jpg?alt=media&token=d82833db-fd33-42e8-a4b7-47514960a604">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -180,6 +189,16 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   .card-info-val{font-size:11px;}
   .btn-add{font-size:10px;padding:7px 6px;}
 
+  /* Barra app en móvil */
+  .app-bar-inner{padding:10px 14px;gap:10px;}
+  .app-bar-title{font-size:11px;}
+  .app-bar-sub{font-size:10px;}
+  .btn-instalar{padding:8px 14px;font-size:11px;}
+
+  /* Buscador full width */
+  .search-row{margin:14px 0 10px;}
+  .search-row .search-inp{padding:10px 14px 10px 38px;}
+
   /* Filtros: scroll horizontal */
   .filtros{flex-wrap:nowrap;overflow-x:auto;padding-bottom:8px;gap:6px;-webkit-overflow-scrolling:touch;}
   .filtros::-webkit-scrollbar{display:none;}
@@ -242,6 +261,61 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .cc-badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;}
 .cc-debe{background:rgba(239,68,68,.1);color:#f87171;border:0.5px solid rgba(239,68,68,.3);}
 .cc-ok{background:rgba(34,197,94,.1);color:#4ade80;border:0.5px solid rgba(34,197,94,.3);}
+
+/* ── BUSCADOR (fila propia arriba de los filtros) ── */
+.search-row{position:relative;margin:20px 0 12px;}
+.search-row .search-inp{width:100%;padding:11px 16px 11px 40px;border-radius:999px;border:0.5px solid #2a2a2a;background:#111;color:#f5f5f5;font-size:16px;font-family:inherit;outline:none;transition:border-color .15s;}
+.search-row .search-inp:focus{border-color:#555;}
+.search-row .search-inp::placeholder{color:#444;}
+.search-row .search-ico{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;color:#444;z-index:1;}
+
+/* ── BARRA DESCARGAR APP ── */
+.app-bar{background:#0d0d0d;border-bottom:0.5px solid #1a1a1a;}
+.app-bar.hidden{display:none;}
+.app-bar-inner{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.app-bar-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:2px;}
+.app-bar-sub{font-size:11px;color:#555;}
+.btn-instalar{padding:9px 20px;border-radius:999px;border:none;background:#fff;color:#0a0a0a;font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;font-family:inherit;white-space:nowrap;flex-shrink:0;}
+.btn-instalar:hover{background:#e5e5e5;transform:translateY(-1px);}
+
+/* ── MODAL INSTALAR ── */
+.inst-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px);}
+.inst-overlay.open{display:flex;}
+.inst-box{background:#0f0f0f;border:0.5px solid #222;border-radius:20px;padding:26px;max-width:400px;width:100%;animation:cuentaIn .28s cubic-bezier(.16,1,.3,1);max-height:88vh;overflow-y:auto;}
+.inst-step{display:flex;gap:12px;padding:12px 0;border-bottom:0.5px solid #1a1a1a;}
+.inst-num{width:24px;height:24px;border-radius:50%;background:#fff;color:#0a0a0a;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.inst-txt{font-size:13px;color:#ccc;line-height:1.55;}
+.inst-txt b{color:#fff;}
+
+/* ── NOTAS DEL PEDIDO ── */
+.notas-ta{width:100%;background:#111;border:0.5px solid #2a2a2a;border-radius:9px;padding:9px 11px;color:#e5e5e5;font-size:13px;font-family:inherit;resize:none;overflow:hidden;min-height:44px;max-height:200px;outline:none;line-height:1.5;transition:border-color .15s;display:block;}
+.notas-ta:focus{border-color:#555;}
+.notas-ta::placeholder{color:#333;}
+.btn-quitar{background:none;border:none;color:#333;cursor:pointer;font-size:16px;padding:4px;transition:color .15s;font-family:inherit;}
+.btn-quitar:hover{color:#f87171;}
+
+/* ── REPETIR PEDIDO ── */
+.repetir{background:#111;border:0.5px solid #222;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;margin:20px 0 0;}
+.repetir-ic{width:38px;height:38px;border-radius:10px;background:#1c1c1c;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.repetir-t{font-size:12.5px;font-weight:700;color:#fff;margin-bottom:2px;}
+.repetir-s{font-size:11px;color:#555;}
+.repetir-b{padding:9px 18px;border-radius:999px;background:#fff;color:#0a0a0a;font-size:11.5px;font-weight:700;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .18s;font-family:inherit;}
+.repetir-b:hover{background:#e5e5e5;transform:translateY(-1px);}
+
+/* ── OFERTAS ── */
+.ofertas{background:#111;border:0.5px solid #2a2a2a;border-radius:12px;overflow:hidden;margin-top:12px;}
+.ofertas-h{padding:11px 15px;border-bottom:0.5px solid #1c1c1c;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.ofertas-t{font-size:12.5px;font-weight:700;color:#fff;}
+.ofertas-v{font-size:10px;color:#555;}
+.ofertas-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:#1c1c1c;}
+.of-card{background:#0d0d0d;padding:13px;}
+.of-card-img{aspect-ratio:1.5;background:#161616;border-radius:8px;margin-bottom:9px;display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden;}
+.of-card-img img{width:100%;height:100%;object-fit:cover;}
+.of-card-n{font-size:11.5px;font-weight:600;color:#e5e5e5;margin-bottom:6px;line-height:1.35;min-height:30px;}
+.of-card-p{display:flex;align-items:baseline;gap:7px;margin-bottom:9px;}
+.of-card-new{font-size:16px;font-weight:900;color:#fff;}
+.of-card-old{font-size:11px;color:#555;text-decoration:line-through;}
+.of-card-off{background:rgba(245,158,11,.15);color:#fbbf24;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;}
 </style>
 </head>
 <body>
@@ -321,12 +395,13 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     </div>
     <div class="cuenta-body" id="cuenta-body">
       <div class="cuenta-login">
-        <div style="font-size:13px;color:#555;text-align:center;margin-bottom:4px;">Ingresá tu nombre tal como te tiene registrado HP Distribuciones</div>
-        <input class="cuenta-inp" id="cuenta-codigo" placeholder="Ej: Juan Pérez"
-          style="letter-spacing:0;text-transform:none;"
+        <div style="font-size:13px;color:#555;text-align:center;margin-bottom:4px;">Ingresá tu número de teléfono</div>
+        <input class="cuenta-inp" id="cuenta-codigo" type="tel" inputmode="numeric" placeholder="2364331030" maxlength="15"
+          oninput="this.value=this.value.replace(/[^0-9]/g,'')"
           onkeydown="if(event.key==='Enter')loginCuenta()">
+        <div style="font-size:11px;color:#333;text-align:center;">Sin guiones ni espacios</div>
         <div class="cuenta-error" id="cuenta-error" style="display:none;"></div>
-        <button class="btn-cuenta-login" onclick="loginCuenta()">Ver mis pedidos →</button>
+        <button class="btn-cuenta-login" onclick="loginCuenta()">Continuar →</button>
       </div>
     </div>
   </div>
@@ -354,6 +429,32 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   </div>
 </nav>
 
+<!-- MODAL INSTALAR APP -->
+<div class="inst-overlay" id="inst-overlay" onclick="if(event.target===this)cerrarInstalar()">
+  <div class="inst-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div>
+        <div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:3px;">📲 Instalar catálogo</div>
+        <div style="font-size:11px;color:#555;" id="inst-device">Seguí estos pasos</div>
+      </div>
+      <button onclick="cerrarInstalar()" style="background:none;border:none;color:#444;font-size:22px;cursor:pointer;line-height:1;">✕</button>
+    </div>
+    <div id="inst-pasos"></div>
+    <button onclick="cerrarInstalar()" style="width:100%;padding:11px;margin-top:16px;background:#fff;border:none;border-radius:999px;color:#0a0a0a;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">Entendido</button>
+  </div>
+</div>
+
+<!-- BARRA DESCARGAR APP -->
+<div class="app-bar" id="app-bar">
+  <div class="app-bar-inner">
+    <div class="app-bar-txt">
+      <div class="app-bar-title">📲 Tené el catálogo a mano</div>
+      <div class="app-bar-sub">Agregalo a tu pantalla de inicio — se abre como una app</div>
+    </div>
+    <button class="btn-instalar" onclick="instalarApp()">Descargar aplicación</button>
+  </div>
+</div>
+
 <!-- HERO -->
 <div class="hero">
   <div class="hero-live"><span class="dot-live"></span> Precios en tiempo real</div>
@@ -365,16 +466,22 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 <div class="main" style="padding-top:0;">
 
 
+  <!-- REPETIR PEDIDO + OFERTAS -->
+  <div id="zona-repetir"></div>
+  <div id="zona-ofertas"></div>
+
+  <!-- BUSCADOR (arriba de los filtros) -->
+  <div class="search-row">
+    <span class="search-ico">🔍</span>
+    <input class="search-inp" id="busq" placeholder="Buscar producto..." oninput="renderCatalogo()">
+  </div>
+
   <!-- FILTROS -->
   <div class="filtros">
     <button class="tab act" data-tipo="todos" onclick="setTipo(this)">Todos <span class="n" id="cnt-todos">—</span></button>
     <button class="tab" data-tipo="Q" onclick="setTipo(this)">🧀 Quesos <span class="n" id="cnt-Q">—</span></button>
     <button class="tab" data-tipo="F" onclick="setTipo(this)">🥩 Fiambres <span class="n" id="cnt-F">—</span></button>
     <button class="tab" data-tipo="O" onclick="setTipo(this)">📦 Otros <span class="n" id="cnt-O">—</span></button>
-    <div class="search-wrap">
-      <span class="search-ico">🔍</span>
-      <input class="search-inp" id="busq" placeholder="Buscar producto..." oninput="renderCatalogo()">
-    </div>
   </div>
 
   <!-- LOADER + GRID -->
@@ -420,6 +527,12 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 var _carrito = [];
 try { _carrito = JSON.parse(localStorage.getItem('hp-cat-carrito') || '[]'); } catch(e){}
 
+var _notasPedido = '';
+try { _notasPedido = localStorage.getItem('hp-cat-notas') || ''; } catch(e){}
+
+var _clienteSesion = null;
+try { _clienteSesion = JSON.parse(localStorage.getItem('hp-cat-cliente') || 'null'); } catch(e){}
+
 function fmt(n){ if(!n||n===0) return '—'; return '$'+Number(n).toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:0}); }
 
 function guardarCarrito(){ try{localStorage.setItem('hp-cat-carrito',JSON.stringify(_carrito));}catch(e){} }
@@ -436,14 +549,26 @@ function toggleCarrito(id,nom,pxkg,precio){
   var idx = _carrito.findIndex(function(i){return i.id===id;});
   if(idx>=0){ _carrito.splice(idx,1); }
   else { _carrito.push({id:id,nom:nom,pxkg:pxkg,precio:precio,qty:1}); }
-  guardarCarrito(); actualizarBadge();
+  guardarCarrito();
+  actualizarBadge();
+  sincronizarBotones(id);
+  if(document.getElementById('cart-drawer').classList.contains('open')) renderDrawer();
+}
+
+function sincronizarBotones(id){
+  var enC = _carrito.some(function(i){ return i.id === id; });
+  // Botón de la grilla principal
   var btn = document.getElementById('btn-'+id);
   if(btn){
-    var enC = _carrito.some(function(i){return i.id===id;});
     btn.className = 'btn-add'+(enC?' en':'');
     btn.textContent = enC ? '✓ En carrito' : '+ Agregar al carrito';
   }
-  if(document.getElementById('cart-drawer').classList.contains('open')) renderDrawer();
+  // Botón de la card de oferta
+  var btnOf = document.getElementById('btn-of-'+id);
+  if(btnOf){
+    btnOf.className = 'btn-add'+(enC?' en':'');
+    btnOf.textContent = enC ? '✓ En carrito' : '+ Agregar';
+  }
 }
 
 function cambiarQty(id,delta){
@@ -456,13 +581,17 @@ function cambiarQty(id,delta){
 function quitarDelCarrito(id){
   _carrito = _carrito.filter(function(i){return i.id!==id;});
   guardarCarrito(); actualizarBadge(); renderDrawer();
-  var btn = document.getElementById('btn-'+id);
-  if(btn){btn.className='btn-add';btn.textContent='+ Agregar al carrito';}
+  sincronizarBotones(id);
 }
 
 function vaciarCarrito(){
-  _carrito=[]; guardarCarrito(); actualizarBadge(); renderDrawer();
-  document.querySelectorAll('.btn-add.en').forEach(function(b){b.className='btn-add';b.textContent='+ Agregar al carrito';});
+  _carrito=[]; _notasPedido='';
+  try{ localStorage.removeItem('hp-cat-notas'); }catch(e){}
+  guardarCarrito(); actualizarBadge(); renderDrawer();
+  document.querySelectorAll('.btn-add.en').forEach(function(b){
+    b.className='btn-add';
+    b.textContent = (b.id||'').indexOf('btn-of-')===0 ? '+ Agregar' : '+ Agregar al carrito';
+  });
 }
 
 function abrirCarrito(){renderDrawer();document.getElementById('cart-overlay').classList.add('open');document.getElementById('cart-drawer').classList.add('open');}
@@ -475,13 +604,30 @@ function renderDrawer(){
   var sub=document.getElementById('cart-subtitle'), totEl=document.getElementById('cart-total-val');
   var n=_carrito.reduce(function(a,i){return a+(i.qty||1);},0);
   sub.textContent=n+' producto'+(n!==1?'s':'');
+
   if(_carrito.length===0){
     cont.innerHTML='<div class="cart-empty"><div class="cart-empty-ico">🛒</div><div style="color:#333;font-size:13px;">Tu carrito está vacío</div></div>';
     foot.style.display='none'; return;
   }
+
   var total=_carrito.reduce(function(a,i){return a+(i.precio||i.pxkg||0)*(i.qty||1);},0);
   totEl.textContent=total>0?fmt(total):'Consultar';
-  cont.innerHTML=_carrito.map(function(item){
+
+  // Banner del cliente identificado
+  var bannerHTML = '';
+  if(_clienteSesion && _clienteSesion.nom){
+    bannerHTML =
+      '<div style="margin:12px 18px 4px;padding:10px 12px;background:rgba(34,197,94,.06);border:0.5px solid rgba(34,197,94,.2);border-radius:10px;display:flex;align-items:center;gap:9px;">' +
+        '<div style="width:28px;height:28px;border-radius:50%;background:rgba(34,197,94,.12);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">👤</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:11px;font-weight:700;color:#4ade80;">' + _clienteSesion.nom + '</div>' +
+          '<div style="font-size:10px;color:#555;">Tu nombre se incluye en el pedido</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  // Filas de productos
+  var filasHTML = _carrito.map(function(item){
     return '<div class="cart-row">'+
       '<div style="display:flex;align-items:center;gap:5px;">'+
         '<button class="qty-btn" onclick="cambiarQty(\''+item.id+'\',-1)">−</button>'+
@@ -492,23 +638,65 @@ function renderDrawer(){
         '<div style="font-size:12px;font-weight:600;color:#e5e5e5;">'+(item.nom||'')+'</div>'+
         '<div style="font-size:10px;color:#444;margin-top:1px;">'+(item.pxkg>0?fmt(item.pxkg)+'/kg':'')+'</div>'+
       '</div>'+
-      '<button onclick="quitarDelCarrito(\''+item.id+'\')" style="background:none;border:none;color:#333;cursor:pointer;font-size:16px;padding:4px;transition:color .15s;" onmouseenter="this.style.color=\'#f87171\'" onmouseleave="this.style.color=\'#333\'">✕</button>'+
+      '<button onclick="quitarDelCarrito(\''+item.id+'\')" class="btn-quitar">✕</button>'+
     '</div>';
   }).join('');
+
+  // Campo de notas — textarea autoexpandible
+  var notasHTML =
+    '<div style="padding:14px 18px 4px;">' +
+      '<div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.4px;font-weight:700;margin-bottom:6px;">📝 Notas del pedido</div>' +
+      '<textarea id="cart-notas" class="notas-ta" placeholder="Ej: para el jueves, cortado fino, timbre 2B..." ' +
+        'oninput="autoExpandir(this);guardarNotas(this.value)" rows="2">' + (_notasPedido||'') + '</textarea>' +
+      '<div style="font-size:9px;color:#333;margin-top:4px;">Opcional — se envía junto al pedido</div>' +
+    '</div>';
+
+  cont.innerHTML = bannerHTML + '<div style="padding:8px 0;">' + filasHTML + '</div>' + notasHTML;
   foot.style.display='block';
+
+  // Ajustar altura del textarea al contenido guardado
+  setTimeout(function(){
+    var ta=document.getElementById('cart-notas');
+    if(ta) autoExpandir(ta);
+  },0);
+}
+
+function autoExpandir(ta){
+  if(!ta) return;
+  ta.style.height='auto';
+  ta.style.height=Math.min(ta.scrollHeight, 200)+'px';
+}
+
+function guardarNotas(v){
+  _notasPedido = v||'';
+  try{ localStorage.setItem('hp-cat-notas', _notasPedido); }catch(e){}
 }
 
 function enviarCarritoWA(nombre,tel){
   if(_carrito.length===0) return;
-  var msg='🛒 *Pedido para HP Distribuciones*\n\n';
+
+  // Título: con nombre del cliente si inició sesión
+  var titulo = (_clienteSesion && _clienteSesion.nom)
+    ? '🛒 *Pedido — ' + _clienteSesion.nom + '*'
+    : '🛒 *Pedido para HP Distribuciones*';
+
+  var msg = titulo + '\n\n';
+
   _carrito.forEach(function(item){
-    msg+='• '+item.nom+' x'+(item.qty||1);
-    if(item.pxkg>0) msg+=' — '+fmt(item.pxkg)+'/kg';
-    msg+='\n';
+    msg += '• ' + item.nom + ' x' + (item.qty||1);
+    if(item.pxkg>0) msg += ' — ' + fmt(item.pxkg) + '/kg';
+    msg += '\n';
   });
+
   var total=_carrito.reduce(function(a,i){return a+(i.precio||i.pxkg||0)*(i.qty||1);},0);
-  if(total>0) msg+='\n💰 Total aprox: '+fmt(total);
-  msg+='\n\n_(enviado desde el catálogo online)_';
+  if(total>0) msg += '\n💰 Total aprox: ' + fmt(total);
+
+  // Notas solo si tiene contenido
+  var notas = (_notasPedido||'').trim();
+  if(notas) msg += '\n\n📝 *Notas:*\n' + notas;
+
+  msg += '\n\n_(enviado desde el catálogo online)_';
+
   window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(msg),'_blank');
 }
 
@@ -562,47 +750,86 @@ actualizarBadge();
 // ── MI CUENTA ────────────────────────────────────────────────────────
 function abrirCuenta(){
   document.getElementById('cuenta-overlay').classList.add('open');
-  document.getElementById('cuenta-body').innerHTML =
-    '<div class="cuenta-login">' +
-      '<div style="font-size:13px;color:#555;text-align:center;margin-bottom:4px;">Ingresá el código que te dio HP Distribuciones</div>' +
-      '<input class="cuenta-inp" id="cuenta-codigo" placeholder="Ej: Juan Pérez" ' +
-        'style="letter-spacing:0;text-transform:none;" ' +
-        'onkeydown="if(event.key===\'Enter\')loginCuenta()">' +
-      '<div class="cuenta-error" id="cuenta-error" style="display:none;"></div>' +
-      '<button class="btn-cuenta-login" onclick="loginCuenta()">Ver mis pedidos →</button>' +
-    '</div>';
   document.getElementById('cuenta-head-txt').innerHTML =
     '<div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:2px;">Mi cuenta</div>' +
-    '<div style="font-size:11px;color:#555;">Ingresá tu nombre para ver tus pedidos</div>';
+    '<div style="font-size:11px;color:#555;">Ingresá tu teléfono para ver tus pedidos</div>';
+  document.getElementById('cuenta-body').innerHTML =
+    '<div class="cuenta-login">' +
+      '<div style="font-size:13px;color:#555;text-align:center;margin-bottom:4px;">Ingresá tu número de teléfono</div>' +
+      '<input class="cuenta-inp" id="cuenta-codigo" type="tel" inputmode="numeric" placeholder="2364331030" maxlength="15" ' +
+        'oninput="this.value=this.value.replace(/[^0-9]/g,String())" ' +
+        'onkeydown="if(event.key===String.fromCharCode(69,110,116,101,114))loginCuenta()">' +
+      '<div style="font-size:11px;color:#333;text-align:center;">Sin guiones ni espacios</div>' +
+      '<div class="cuenta-error" id="cuenta-error" style="display:none;"></div>' +
+      '<button class="btn-cuenta-login" onclick="loginCuenta()">Continuar →</button>' +
+    '</div>';
   setTimeout(function(){ var inp=document.getElementById('cuenta-codigo'); if(inp) inp.focus(); }, 100);
 }
+
 function cerrarCuenta(){ document.getElementById('cuenta-overlay').classList.remove('open'); }
 
+function normalizarTel(t){
+  return String(t||'').replace(/[^0-9]/g,'').replace(/^0+/,'').replace(/^54/,'').replace(/^9/,'');
+}
+
 async function loginCuenta(){
-  var nombre = (document.getElementById('cuenta-codigo').value||'').trim();
-  if(!nombre){ mostrarErrorCuenta('Ingresá tu nombre'); return; }
-  if(nombre.length < 2){ mostrarErrorCuenta('El nombre debe tener al menos 2 caracteres'); return; }
+  var tel = (document.getElementById('cuenta-codigo').value||'').trim();
+  if(!tel){ mostrarErrorCuenta('Ingresá tu número de teléfono'); return; }
+  if(tel.length < 6){ mostrarErrorCuenta('El número parece incompleto'); return; }
 
   var btn = document.querySelector('.btn-cuenta-login');
   if(btn){ btn.textContent='Buscando...'; btn.disabled=true; }
 
   try{
-    // Buscar cliente por nombre exacto en Firestore
-    var cliente = await window._fbGetClienteByNombre(nombre);
+    var cliente = await window._fbGetClienteByTel(normalizarTel(tel));
     if(!cliente){
-      // Intentar búsqueda case-insensitive comparando contra todos los clientes
-      cliente = await window._fbGetClienteByNombreFuzzy(nombre);
-    }
-    if(!cliente){
-      mostrarErrorCuenta('No encontramos ese nombre. Revisá que esté escrito igual que en tu cuenta.');
-      if(btn){btn.textContent='Ver mis pedidos →';btn.disabled=false;}
+      mostrarErrorCuenta('No encontramos ese número. Verificá que sea el que tenemos registrado.');
       return;
     }
+    confirmarIdentidad(cliente);
+  }catch(e){
+    mostrarErrorCuenta('Error de conexión. Intentá de nuevo.');
+  }
+}
+
+function confirmarIdentidad(cliente){
+  document.getElementById('cuenta-head-txt').innerHTML =
+    '<div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:2px;">Confirmá tu identidad</div>' +
+    '<div style="font-size:11px;color:#555;">Verificá que seas vos</div>';
+  document.getElementById('cuenta-body').innerHTML =
+    '<div style="text-align:center;padding:12px 0 20px;">' +
+      '<div style="width:56px;height:56px;border-radius:50%;background:#1a1a1a;border:0.5px solid #2a2a2a;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 14px;">👤</div>' +
+      '<div style="font-size:13px;color:#555;margin-bottom:6px;">¿Sos vos?</div>' +
+      '<div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:4px;">' + (cliente.nom||'') + '</div>' +
+      '<div style="font-size:12px;color:#444;">' + (cliente.tel||'') + '</div>' +
+    '</div>' +
+    '<button class="btn-cuenta-login" onclick="confirmarSi()">Sí, soy yo →</button>' +
+    '<button onclick="abrirCuenta()" style="width:100%;padding:11px;margin-top:8px;background:transparent;border:0.5px solid #1c1c1c;border-radius:999px;color:#555;font-size:12px;cursor:pointer;font-family:inherit;">No, probar otro número</button>';
+  window._clientePendiente = cliente;
+}
+
+async function confirmarSi(){
+  var cliente = window._clientePendiente;
+  if(!cliente) return;
+  // Guardar sesión para que el carrito use el nombre
+  _clienteSesion = { nom: cliente.nom, tel: cliente.tel };
+  try{ localStorage.setItem('hp-cat-cliente', JSON.stringify(_clienteSesion)); }catch(e){}
+  // Buscar el último pedido completado para "repetir"
+  try{
+    var todos = await window._fbGetPedidosCliente(cliente.nom);
+    var comp = todos.filter(function(p){ return p.estado==='Completado' && p.lineas && p.lineas.length; })
+                    .sort(function(a,b){ return (b.fecha||'').localeCompare(a.fecha||''); });
+    window._ultimoPedido = comp[0] || null;
+    if(window.renderRepetir) window.renderRepetir();
+  }catch(e){}
+  document.getElementById('cuenta-body').innerHTML =
+    '<div style="text-align:center;padding:40px 0;color:#555;font-size:13px;">Cargando tus pedidos...</div>';
+  try{
     var pedidos = await window._fbGetPedidosCliente(cliente.nom);
     renderCuenta(cliente, pedidos);
   }catch(e){
-    mostrarErrorCuenta('Error de conexión. Intentá de nuevo.');
-    if(btn){btn.textContent='Ver mis pedidos →';btn.disabled=false;}
+    document.getElementById('cuenta-body').innerHTML =
+      '<div style="text-align:center;padding:32px 0;color:#f87171;font-size:13px;">Error al cargar los pedidos</div>';
   }
 }
 
@@ -610,7 +837,7 @@ function mostrarErrorCuenta(msg){
   var el=document.getElementById('cuenta-error');
   if(el){el.textContent=msg;el.style.display='block';}
   var btn=document.querySelector('.btn-cuenta-login');
-  if(btn){btn.textContent='Ver mis pedidos →';btn.disabled=false;}
+  if(btn){btn.textContent='Continuar →';btn.disabled=false;}
 }
 
 function renderCuenta(cliente, pedidos){
@@ -680,6 +907,10 @@ function renderCuenta(cliente, pedidos){
 }
 
 function cerrarSesion(){
+  _clienteSesion = null;
+  window._ultimoPedido = null;
+  try{ localStorage.removeItem('hp-cat-cliente'); }catch(e){}
+  if(window.renderRepetir) window.renderRepetir();
   var btnSesion = document.getElementById('btn-sesion');
   if(btnSesion) btnSesion.textContent = '👤 Iniciar sesión';
   abrirCuenta();
@@ -706,6 +937,286 @@ window.loginCuenta        = loginCuenta;
 window.mostrarErrorCuenta = mostrarErrorCuenta;
 window.renderCuenta       = renderCuenta;
 window.cerrarSesion       = cerrarSesion;
+window.autoExpandir       = autoExpandir;
+window.guardarNotas       = guardarNotas;
+
+// ── OFERTAS DEL CATÁLOGO ─────────────────────────────────────────────
+window._ofertasWeb = null;
+
+function precioOfertaVigente(id){
+  var cfg = window._ofertasWeb;
+  if(!cfg || !cfg.productos) return null;
+  var p = cfg.productos[id];
+  if(p === undefined || !p) return null;
+  var hoy = new Date().toISOString().substring(0,10);
+  if(cfg.hasta && hoy > cfg.hasta) return null;
+  if(cfg.desde && hoy < cfg.desde) return null;
+  return p;
+}
+
+function renderOfertas(){
+  var zona = document.getElementById('zona-ofertas');
+  if(!zona) return;
+  var cfg = window._ofertasWeb;
+  if(!cfg || !cfg.productos || Object.keys(cfg.productos).length === 0){ zona.innerHTML=''; return; }
+
+  var hoy = new Date().toISOString().substring(0,10);
+  if(cfg.hasta && hoy > cfg.hasta){ zona.innerHTML=''; return; }
+  if(cfg.desde && hoy < cfg.desde){ zona.innerHTML=''; return; }
+
+  var prods = window._productos || [];
+  var enOferta = Object.keys(cfg.productos).map(function(id){
+    var p = prods.find(function(x){ return x.id === id; });
+    if(!p) return null;
+    return { p: p, precioOf: cfg.productos[id] };
+  }).filter(Boolean);
+
+  if(enOferta.length === 0){ zona.innerHTML=''; return; }
+
+  var vence = '';
+  if(cfg.hasta){
+    var d = cfg.hasta.split('-');
+    var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    vence = 'Hasta el ' + parseInt(d[2],10) + ' de ' + meses[parseInt(d[1],10)-1];
+  }
+
+  zona.innerHTML =
+    '<div class="ofertas">' +
+      '<div class="ofertas-h">' +
+        '<div class="ofertas-t">🏷️ ' + (cfg.titulo || 'Ofertas') + '</div>' +
+        (vence ? '<div class="ofertas-v">' + vence + '</div>' : '') +
+      '</div>' +
+      '<div class="ofertas-g">' +
+        enOferta.map(function(o){
+          var p = o.p;
+          var base = p.pxkg || p.precio || 0;
+          var off = base > 0 ? Math.round((1 - o.precioOf/base) * 100) : 0;
+          var tieneImg = !!(p.foto && p.foto !== 'null' && p.foto !== '');
+          var img = tieneImg
+            ? '<img src="' + p.foto + '" alt="' + (p.nom||'') + '" loading="lazy">'
+            : (p.em || '📦');
+          var enC = _carrito.some(function(c){ return c.id === p.id; });
+          var nomSafe = (p.nom||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+          return '<div class="of-card">' +
+            '<div class="of-card-img">' + img + '</div>' +
+            '<div class="of-card-n">' + (p.nom||'') + '</div>' +
+            '<div class="of-card-p">' +
+              '<span class="of-card-new">' + fmt(o.precioOf) + '</span>' +
+              (base > o.precioOf ? '<span class="of-card-old">' + fmt(base) + '</span>' : '') +
+              (off > 0 ? '<span class="of-card-off">-' + off + '%</span>' : '') +
+            '</div>' +
+            '<button class="btn-add' + (enC?' en':'') + '" id="btn-of-' + p.id + '" ' +
+              'onclick="toggleCarrito(&quot;' + p.id + '&quot;,&quot;' + nomSafe + '&quot;,' + o.precioOf + ',' + o.precioOf + ')">' +
+              (enC ? '✓ En carrito' : '+ Agregar') +
+            '</button>' +
+          '</div>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+}
+
+// ── REPETIR ÚLTIMO PEDIDO ────────────────────────────────────────────
+window._ultimoPedido = null;
+
+function renderRepetir(){
+  var zona = document.getElementById('zona-repetir');
+  if(!zona) return;
+  if(!_clienteSesion || !window._ultimoPedido){ zona.innerHTML=''; return; }
+
+  var ped = window._ultimoPedido;
+  var lineas = ped.lineas || [];
+  if(lineas.length === 0){ zona.innerHTML=''; return; }
+
+  var fechaTxt = '';
+  if(ped.fecha){
+    var d = ped.fecha.split('-');
+    var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    fechaTxt = parseInt(d[2],10) + ' de ' + meses[parseInt(d[1],10)-1];
+  }
+
+  zona.innerHTML =
+    '<div class="repetir">' +
+      '<div class="repetir-ic">🔄</div>' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div class="repetir-t">Repetir tu último pedido</div>' +
+        '<div class="repetir-s">' + lineas.length + ' producto' + (lineas.length!==1?'s':'') +
+          (ped.monto ? ' · ' + fmt(ped.monto) : '') +
+          (fechaTxt ? ' · ' + fechaTxt : '') + '</div>' +
+      '</div>' +
+      '<button class="repetir-b" onclick="repetirPedido()">Agregar todo</button>' +
+    '</div>';
+}
+
+function repetirPedido(){
+  var ped = window._ultimoPedido;
+  if(!ped || !ped.lineas) return;
+  var prods = window._productos || [];
+  var agregados = 0;
+
+  ped.lineas.forEach(function(l){
+    var nom = (l.prod||'').trim();
+    if(!nom) return;
+    var p = prods.find(function(x){ return (x.nom||'').trim().toLowerCase() === nom.toLowerCase(); });
+    if(!p) return;
+    if(_carrito.some(function(c){ return c.id === p.id; })) return;
+    var px = p.pxkg||0, pr = p.precio||0;
+    var of = precioOfertaVigente(p.id);
+    if(of !== null){ px = of; pr = of; }
+    _carrito.push({ id:p.id, nom:p.nom, pxkg:px, precio:pr, qty:Math.max(1, parseInt(l.cant,10)||1) });
+    agregados++;
+  });
+
+  guardarCarrito();
+  actualizarBadge();
+  renderCatalogo();
+  renderOfertas();
+  if(agregados > 0){ abrirCarrito(); }
+}
+
+window.renderOfertas  = renderOfertas;
+window.renderRepetir  = renderRepetir;
+window.repetirPedido  = repetirPedido;
+window.sincronizarBotones = sincronizarBotones;
+window.precioOfertaVigente = precioOfertaVigente;
+
+// Restaurar sesión del cliente si existe
+if(_clienteSesion && _clienteSesion.nom){
+  var _b = document.getElementById('btn-sesion');
+  if(_b) _b.textContent = '👤 ' + _clienteSesion.nom.split(' ')[0];
+  setTimeout(function(){
+    if(typeof window._fbGetPedidosCliente !== 'function') return;
+    window._fbGetPedidosCliente(_clienteSesion.nom).then(function(todos){
+      var comp = (todos||[]).filter(function(p){ return p.estado==='Completado' && p.lineas && p.lineas.length; })
+                            .sort(function(a,b){ return (b.fecha||'').localeCompare(a.fecha||''); });
+      window._ultimoPedido = comp[0] || null;
+      if(window.renderRepetir) window.renderRepetir();
+    }).catch(function(){});
+  }, 1200);
+}
+
+
+// ── INSTALAR APP (PWA) ─────────────────────────────────────────────
+var _deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  _deferredPrompt = e;
+});
+
+// Si ya está instalada, ocultar la barra
+window.addEventListener('DOMContentLoaded', function(){
+  var yaInstalada = window.matchMedia('(display-mode: standalone)').matches ||
+                    window.navigator.standalone === true;
+  if(yaInstalada){
+    var bar = document.getElementById('app-bar');
+    if(bar) bar.classList.add('hidden');
+  }
+});
+
+function detectarDispositivo(){
+  var ua = navigator.userAgent || '';
+  var esIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var esAndroid = /Android/i.test(ua);
+  var esSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+  var esChrome = /Chrome|CriOS/i.test(ua);
+  var esFirefox = /Firefox|FxiOS/i.test(ua);
+  var esSamsung = /SamsungBrowser/i.test(ua);
+  return { esIOS: esIOS, esAndroid: esAndroid, esSafari: esSafari, esChrome: esChrome, esFirefox: esFirefox, esSamsung: esSamsung, esEscritorio: !esIOS && !esAndroid };
+}
+
+function instalarApp(){
+  var d = detectarDispositivo();
+
+  // Android/Chrome/Edge: usar el prompt nativo si está disponible
+  if(_deferredPrompt){
+    _deferredPrompt.prompt();
+    _deferredPrompt.userChoice.then(function(r){
+      if(r.outcome === 'accepted'){
+        var bar = document.getElementById('app-bar');
+        if(bar) bar.classList.add('hidden');
+      }
+      _deferredPrompt = null;
+    });
+    return;
+  }
+
+  // Sin prompt nativo: mostrar instrucciones según el dispositivo
+  var titulo = '';
+  var pasos = [];
+
+  if(d.esIOS){
+    titulo = 'iPhone / iPad · Safari';
+    pasos = [
+      'Tocá el botón <b>Compartir</b> ⬆️ en la barra de abajo de Safari',
+      'Deslizá hacia abajo y tocá <b>"Agregar a inicio"</b>',
+      'Tocá <b>Agregar</b> arriba a la derecha',
+      '¡Listo! El catálogo queda como una app en tu pantalla de inicio'
+    ];
+    if(!d.esSafari){
+      titulo = 'iPhone / iPad';
+      pasos = [
+        'Abrí este link en <b>Safari</b> (no funciona desde otros navegadores en iPhone)',
+        'Tocá el botón <b>Compartir</b> ⬆️ abajo',
+        'Deslizá y tocá <b>"Agregar a inicio"</b>',
+        'Tocá <b>Agregar</b> — queda como una app'
+      ];
+    }
+  } else if(d.esAndroid){
+    if(d.esSamsung){
+      titulo = 'Android · Samsung Internet';
+      pasos = [
+        'Tocá el menú <b>☰</b> abajo a la derecha',
+        'Tocá <b>"Agregar página a"</b>',
+        'Elegí <b>"Pantalla de inicio"</b>',
+        '¡Listo! Ya tenés el acceso directo'
+      ];
+    } else if(d.esFirefox){
+      titulo = 'Android · Firefox';
+      pasos = [
+        'Tocá el menú <b>⋮</b> arriba a la derecha',
+        'Tocá <b>"Instalar"</b> o <b>"Agregar a pantalla de inicio"</b>',
+        'Confirmá tocando <b>Agregar</b>',
+        '¡Listo! Ya tenés el acceso directo'
+      ];
+    } else {
+      titulo = 'Android · Chrome';
+      pasos = [
+        'Tocá el menú <b>⋮</b> arriba a la derecha',
+        'Tocá <b>"Instalar app"</b> o <b>"Agregar a pantalla principal"</b>',
+        'Confirmá tocando <b>Instalar</b>',
+        '¡Listo! El catálogo queda como una app'
+      ];
+    }
+  } else {
+    titulo = 'Computadora';
+    pasos = [
+      'Buscá el ícono <b>⊕</b> o <b>💻</b> en la barra de direcciones, a la derecha',
+      'Tocá <b>"Instalar HP Catálogo"</b>',
+      'Confirmá tocando <b>Instalar</b>',
+      'También podés guardarlo en favoritos con <b>Ctrl+D</b>'
+    ];
+  }
+
+  document.getElementById('inst-device').textContent = titulo;
+  document.getElementById('inst-pasos').innerHTML = pasos.map(function(p, i){
+    return '<div class="inst-step">' +
+      '<div class="inst-num">' + (i+1) + '</div>' +
+      '<div class="inst-txt">' + p + '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('inst-overlay').classList.add('open');
+}
+
+function cerrarInstalar(){
+  document.getElementById('inst-overlay').classList.remove('open');
+}
+
+window.instalarApp       = instalarApp;
+window.cerrarInstalar    = cerrarInstalar;
+window.detectarDispositivo = detectarDispositivo;
+window.normalizarTel      = normalizarTel;
+window.confirmarIdentidad = confirmarIdentidad;
+window.confirmarSi        = confirmarSi;
 
 if(window._productos && window._productos.length){ renderCatalogo(); }
 
@@ -737,7 +1248,7 @@ onSnapshot(collection(db, 'productos'), function(snap){
   var intentos = 0;
   (function pintar(){
     if(typeof window.renderCatalogo === 'function'){
-      try{ window.renderCatalogo(); }
+      try{ window.renderCatalogo(); if(window.renderOfertas) window.renderOfertas(); }
       catch(e){
         document.getElementById('grid').innerHTML =
           '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#f87171;font-size:12px;">Error al mostrar productos: '+e.message+'</div>';
@@ -760,6 +1271,29 @@ onSnapshot(collection(db, 'productos'), function(snap){
 });
 
 // ── Mi Cuenta — buscar cliente por nombre ───────────────────────
+// Escuchar las ofertas configuradas desde la app
+import { doc as fbDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+onSnapshot(fbDoc(db,'config','ofertasWeb'), function(snap){
+  window._ofertasWeb = snap.exists() ? (snap.data().value || null) : null;
+  if(typeof renderOfertas === 'function') renderOfertas();
+}, function(){ });
+
+window._fbGetClienteByTel = async function(telNorm){
+  try{
+    var snap = await getDocs(collection(db,'clientes'));
+    var match = null;
+    function norm(t){ return String(t||'').replace(/[^0-9]/g,'').replace(/^0+/,'').replace(/^54/,'').replace(/^9/,''); }
+    snap.docs.forEach(function(d){
+      if(match) return;
+      var data = d.data();
+      if(norm(data.tel) === telNorm && telNorm.length >= 6){
+        match = Object.assign({id:d.id}, data);
+      }
+    });
+    return match;
+  }catch(e){ console.warn('_fbGetClienteByTel:', e); return null; }
+};
+
 window._fbGetClienteByNombre = async function(nombre){
   try{
     var q = query(collection(db,'clientes'), where('nom','==',nombre));
