@@ -62,11 +62,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .tab:hover{border-color:#444;color:#ccc;}
 .tab.act{background:#fff;color:#0a0a0a;border-color:#fff;font-weight:700;}
 .tab .n{display:inline-block;padding:1px 5px;font-size:10px;margin-left:3px;color:inherit;opacity:.6;}
-.search-wrap{flex:1;min-width:200px;position:relative;}
-.search-inp{width:100%;padding:9px 14px 9px 36px;border-radius:999px;border:0.5px solid #2a2a2a;background:#111;color:#f5f5f5;font-size:16px;font-family:inherit;outline:none;transition:border-color .15s;}
-.search-inp:focus{border-color:#555;}
-.search-inp::placeholder{color:#444;}
-.search-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;color:#444;}
+/* .search-* viejo eliminado — el buscador ahora usa .search-row (fila completa arriba de los filtros) */
 
 /* ── GRID ── */
 #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:1px;border:0.5px solid #1c1c1c;border-radius:14px;overflow:hidden;margin-bottom:56px;background:#1c1c1c;}
@@ -203,7 +199,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   .filtros{flex-wrap:nowrap;overflow-x:auto;padding-bottom:8px;gap:6px;-webkit-overflow-scrolling:touch;}
   .filtros::-webkit-scrollbar{display:none;}
   .tab{flex-shrink:0;padding:6px 12px;font-size:11px;}
-  .search-wrap{min-width:160px;flex-shrink:0;}
 
   /* FAQ: columna */
   .faq-row{flex-direction:column;gap:6px;padding:14px 0;}
@@ -263,7 +258,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .cc-ok{background:rgba(34,197,94,.1);color:#4ade80;border:0.5px solid rgba(34,197,94,.3);}
 
 /* ── BUSCADOR (fila propia arriba de los filtros) ── */
-.search-row{position:relative;margin:20px 0 12px;}
+.search-row{position:relative;margin:20px 0 12px;display:block;width:100%;}
 .search-row .search-inp{width:100%;padding:11px 16px 11px 40px;border-radius:999px;border:0.5px solid #2a2a2a;background:#111;color:#f5f5f5;font-size:16px;font-family:inherit;outline:none;transition:border-color .15s;}
 .search-row .search-inp:focus{border-color:#555;}
 .search-row .search-inp::placeholder{color:#444;}
@@ -316,6 +311,17 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .of-card-new{font-size:16px;font-weight:900;color:#fff;}
 .of-card-old{font-size:11px;color:#555;text-decoration:line-through;}
 .of-card-off{background:rgba(245,158,11,.15);color:#fbbf24;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;}
+
+/* ── CHECKBOX RECORDAR ── */
+.rec-wrap{display:flex;align-items:center;gap:9px;padding:10px 2px;cursor:pointer;user-select:none;}
+.rec-box{width:19px;height:19px;border-radius:6px;border:1.5px solid #333;background:transparent;display:flex;align-items:center;justify-content:center;font-size:11px;color:#0a0a0a;flex-shrink:0;transition:all .18s;}
+.rec-box.on{background:#fff;border-color:#fff;}
+.rec-txt{font-size:12px;color:#666;transition:color .15s;}
+.rec-wrap:hover .rec-txt{color:#999;}
+.rec-wrap:hover .rec-box{border-color:#555;}
+.rec-wrap.on .rec-txt{color:#ccc;}
+.cuenta-hint{font-size:11.5px;color:#444;text-align:center;line-height:1.55;margin-bottom:2px;}
+.cuenta-ej{color:#666;font-weight:600;}
 </style>
 </head>
 <body>
@@ -751,44 +757,79 @@ actualizarBadge();
 function abrirCuenta(){
   document.getElementById('cuenta-overlay').classList.add('open');
   document.getElementById('cuenta-head-txt').innerHTML =
-    '<div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:2px;">Mi cuenta</div>' +
-    '<div style="font-size:11px;color:#555;">Ingresá tu teléfono para ver tus pedidos</div>';
+    '<div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:2px;">Iniciar sesión</div>' +
+    '<div style="font-size:11px;color:#555;">Para ver tus pedidos y facturas</div>';
+  var telGuardado = '';
+  try{ telGuardado = localStorage.getItem('hp-cat-tel') || ''; }catch(e){}
+  var recordar = telGuardado !== '';
   document.getElementById('cuenta-body').innerHTML =
     '<div class="cuenta-login">' +
-      '<div style="font-size:13px;color:#555;text-align:center;margin-bottom:4px;">Ingresá tu número de teléfono</div>' +
-      '<input class="cuenta-inp" id="cuenta-codigo" type="tel" inputmode="numeric" placeholder="2364331030" maxlength="15" ' +
+      '<div class="cuenta-hint">Ingresá tu número de teléfono sin el 0 y sin el 15<br>' +
+        '<span class="cuenta-ej">Por ejemplo: 2364586540</span></div>' +
+      '<input class="cuenta-inp" id="cuenta-codigo" type="tel" inputmode="numeric" placeholder="2364586540" maxlength="15" value="' + telGuardado + '" ' +
         'oninput="this.value=this.value.replace(/[^0-9]/g,String())" ' +
         'onkeydown="if(event.key===String.fromCharCode(69,110,116,101,114))loginCuenta()">' +
-      '<div style="font-size:11px;color:#333;text-align:center;">Sin guiones ni espacios</div>' +
+      '<div class="rec-wrap' + (recordar?' on':'') + '" id="rec-wrap" onclick="toggleRecordar()">' +
+        '<div class="rec-box' + (recordar?' on':'') + '" id="rec-box">' + (recordar?'✓':'') + '</div>' +
+        '<span class="rec-txt">Recordar mi número y no cerrar sesión</span>' +
+      '</div>' +
       '<div class="cuenta-error" id="cuenta-error" style="display:none;"></div>' +
       '<button class="btn-cuenta-login" onclick="loginCuenta()">Continuar →</button>' +
     '</div>';
+  window._recordarTel = recordar;
   setTimeout(function(){ var inp=document.getElementById('cuenta-codigo'); if(inp) inp.focus(); }, 100);
+}
+
+function toggleRecordar(){
+  window._recordarTel = !window._recordarTel;
+  var box = document.getElementById('rec-box');
+  var wrap = document.getElementById('rec-wrap');
+  if(box){ box.className = 'rec-box' + (window._recordarTel?' on':''); box.textContent = window._recordarTel?'✓':''; }
+  if(wrap){ wrap.className = 'rec-wrap' + (window._recordarTel?' on':''); }
 }
 
 function cerrarCuenta(){ document.getElementById('cuenta-overlay').classList.remove('open'); }
 
 function normalizarTel(t){
-  return String(t||'').replace(/[^0-9]/g,'').replace(/^0+/,'').replace(/^54/,'').replace(/^9/,'');
+  var s = String(t||'').replace(/[^0-9]/g,'');
+  s = s.replace(/^0+/,'');       // saca 0 inicial
+  s = s.replace(/^54/,'');       // saca código de país
+  s = s.replace(/^9/,'');        // saca el 9 de móvil
+  // Saca el "15" intercalado después del código de área (2 a 4 dígitos)
+  s = s.replace(/^(\d{2,4})15(\d{6,})$/, '$1$2');
+  return s;
 }
 
 async function loginCuenta(){
   var tel = (document.getElementById('cuenta-codigo').value||'').trim();
+  window._telIngresado = tel;
   if(!tel){ mostrarErrorCuenta('Ingresá tu número de teléfono'); return; }
-  if(tel.length < 6){ mostrarErrorCuenta('El número parece incompleto'); return; }
+  var soloDig = tel.replace(/[^0-9]/g,'');
+  if(soloDig.length < 8){ mostrarErrorCuenta('El número parece incompleto. Son 10 dígitos, por ejemplo 2364586540'); return; }
 
   var btn = document.querySelector('.btn-cuenta-login');
   if(btn){ btn.textContent='Buscando...'; btn.disabled=true; }
 
-  try{
-    var cliente = await window._fbGetClienteByTel(normalizarTel(tel));
-    if(!cliente){
-      mostrarErrorCuenta('No encontramos ese número. Verificá que sea el que tenemos registrado.');
-      return;
-    }
-    confirmarIdentidad(cliente);
-  }catch(e){
-    mostrarErrorCuenta('Error de conexión. Intentá de nuevo.');
+  if(typeof window._fbGetClienteByTel !== 'function'){
+    mostrarErrorCuenta('El catálogo todavía está cargando. Esperá unos segundos y probá de nuevo.');
+    return;
+  }
+
+  var r = await window._fbGetClienteByTel(normalizarTel(tel));
+
+  if(r && r.ok){ confirmarIdentidad(r.cliente); return; }
+
+  var motivo = (r && r.motivo) || 'error';
+  if(motivo === 'no-encontrado'){
+    mostrarErrorCuenta('No encontramos ese número. Escribilo sin el 0 y sin el 15, o consultanos por WhatsApp.');
+  } else if(motivo === 'permisos'){
+    mostrarErrorCuenta('No podemos acceder a los datos en este momento. Avisanos por WhatsApp.');
+  } else if(motivo === 'red'){
+    mostrarErrorCuenta('Sin conexión. Revisá tu internet y probá de nuevo.');
+  } else if(motivo === 'sin-datos'){
+    mostrarErrorCuenta('No hay clientes cargados todavía.');
+  } else {
+    mostrarErrorCuenta('Hubo un problema al buscar. Probá de nuevo en unos segundos.');
   }
 }
 
@@ -813,7 +854,15 @@ async function confirmarSi(){
   if(!cliente) return;
   // Guardar sesión para que el carrito use el nombre
   _clienteSesion = { nom: cliente.nom, tel: cliente.tel };
-  try{ localStorage.setItem('hp-cat-cliente', JSON.stringify(_clienteSesion)); }catch(e){}
+  try{
+    if(window._recordarTel){
+      localStorage.setItem('hp-cat-cliente', JSON.stringify(_clienteSesion));
+      localStorage.setItem('hp-cat-tel', window._telIngresado || cliente.tel || '');
+    } else {
+      localStorage.removeItem('hp-cat-cliente');
+      localStorage.removeItem('hp-cat-tel');
+    }
+  }catch(e){}
   // Buscar el último pedido completado para "repetir"
   try{
     var todos = await window._fbGetPedidosCliente(cliente.nom);
@@ -909,7 +958,7 @@ function renderCuenta(cliente, pedidos){
 function cerrarSesion(){
   _clienteSesion = null;
   window._ultimoPedido = null;
-  try{ localStorage.removeItem('hp-cat-cliente'); }catch(e){}
+  try{ localStorage.removeItem('hp-cat-cliente'); localStorage.removeItem('hp-cat-tel'); }catch(e){}
   if(window.renderRepetir) window.renderRepetir();
   var btnSesion = document.getElementById('btn-sesion');
   if(btnSesion) btnSesion.textContent = '👤 Iniciar sesión';
@@ -937,6 +986,7 @@ window.loginCuenta        = loginCuenta;
 window.mostrarErrorCuenta = mostrarErrorCuenta;
 window.renderCuenta       = renderCuenta;
 window.cerrarSesion       = cerrarSesion;
+window.toggleRecordar     = toggleRecordar;
 window.autoExpandir       = autoExpandir;
 window.guardarNotas       = guardarNotas;
 
@@ -1279,19 +1329,53 @@ onSnapshot(fbDoc(db,'config','ofertasWeb'), function(snap){
 }, function(){ });
 
 window._fbGetClienteByTel = async function(telNorm){
+  // Devuelve: {ok:true, cliente} | {ok:false, motivo:'no-encontrado'|'permisos'|'red', detalle}
   try{
     var snap = await getDocs(collection(db,'clientes'));
-    var match = null;
-    function norm(t){ return String(t||'').replace(/[^0-9]/g,'').replace(/^0+/,'').replace(/^54/,'').replace(/^9/,''); }
+    if(snap.empty) return { ok:false, motivo:'sin-datos' };
+
+    function norm(t){
+      var s = String(t||'').replace(/[^0-9]/g,'');
+      s = s.replace(/^0+/,'').replace(/^54/,'').replace(/^9/,'');
+      s = s.replace(/^(\d{2,4})15(\d{6,})$/, '$1$2');
+      return s;
+    }
+    // Los últimos 8 dígitos identifican el número sin importar prefijos
+    function cola(t){
+      var s = String(t||'').replace(/[^0-9]/g,'');
+      return s.length >= 8 ? s.slice(-8) : s;
+    }
+
+    var buscado = norm(telNorm);
+    var buscadoCola = cola(telNorm);
+    var exacto = null, porCola = null;
+
     snap.docs.forEach(function(d){
-      if(match) return;
       var data = d.data();
-      if(norm(data.tel) === telNorm && telNorm.length >= 6){
-        match = Object.assign({id:d.id}, data);
+      if(!data.tel) return;
+      if(!exacto && norm(data.tel) === buscado && buscado.length >= 4){
+        exacto = Object.assign({id:d.id}, data);
+      }
+      if(!porCola && cola(data.tel) === buscadoCola && buscadoCola.length >= 8){
+        porCola = Object.assign({id:d.id}, data);
       }
     });
-    return match;
-  }catch(e){ console.warn('_fbGetClienteByTel:', e); return null; }
+
+    var cliente = exacto || porCola;
+    if(cliente) return { ok:true, cliente:cliente };
+    return { ok:false, motivo:'no-encontrado' };
+
+  }catch(e){
+    console.error('_fbGetClienteByTel:', e);
+    var cod = (e && e.code) || '';
+    if(cod.indexOf('permission')!==-1 || cod.indexOf('denied')!==-1){
+      return { ok:false, motivo:'permisos', detalle:e.message };
+    }
+    if(cod.indexOf('unavailable')!==-1 || cod.indexOf('network')!==-1){
+      return { ok:false, motivo:'red', detalle:e.message };
+    }
+    return { ok:false, motivo:'error', detalle:(e && e.message) || String(e) };
+  }
 };
 
 window._fbGetClienteByNombre = async function(nombre){
