@@ -1,0 +1,25 @@
+{
+  "name": "HP Distribuciones — Catálogo",
+  "short_name": "HP Catálogo",
+  "description": "Catálogo de precios en tiempo real de HP Distribuciones, Junín",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    {
+      "src": "https://firebasestorage.googleapis.com/v0/b/hp-distribuciones.firebasestorage.app/o/config%2F1776636430400_login-logo.jpg?alt=media&token=d82833db-fd33-42e8-a4b7-47514960a604",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://firebasestorage.googleapis.com/v0/b/hp-distribuciones.firebasestorage.app/o/config%2F1776636430400_login-logo.jpg?alt=media&token=d82833db-fd33-42e8-a4b7-47514960a604",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
