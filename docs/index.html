@@ -1043,7 +1043,7 @@ function renderOfertas(){
           var off = base > 0 ? Math.round((1 - o.precioOf/base) * 100) : 0;
           var tieneImg = !!(p.foto && p.foto !== 'null' && p.foto !== '');
           var img = tieneImg
-            ? '<img src="' + p.foto + '" alt="' + (p.nom||'') + '" loading="lazy">'
+            ? '<img src="' + p.foto + '" alt="' + (p.nom||'') + '" loading="lazy" onerror="this.parentElement.innerHTML=\'' + (p.em||'📦') + '\'">'
             : (p.em || '📦');
           var enC = _carrito.some(function(c){ return c.id === p.id; });
           var nomSafe = (p.nom||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
