@@ -703,6 +703,19 @@ function enviarCarritoWA(nombre,tel){
 
   msg += '\n\n_(enviado desde el catálogo online)_';
 
+  // Registrar el pedido armado y enviado (para ver qué clientes usan
+  // más el catálogo para pedir). Si no inició sesión, queda agrupado
+  // como "sin identificar" — no se puede saber quién es.
+  if(typeof window._trackCatalogo==='function' && typeof window._idCatalogo==='function'){
+    var idPed = (_clienteSesion && (_clienteSesion.tel || _clienteSesion.nom))
+      ? window._idCatalogo(normalizarTel(_clienteSesion.tel||'') || _clienteSesion.nom)
+      : 'sin_identificar';
+    window._trackCatalogo('catalogoPedidosWeb', idPed, {
+      nombre: (_clienteSesion && _clienteSesion.nom) || 'Sin identificar',
+      tel: (_clienteSesion && _clienteSesion.tel) || ''
+    });
+  }
+
   window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(msg),'_blank');
 }
 
@@ -725,6 +738,20 @@ function renderCatalogo(){
     if(busq&&!(p.nom||'').toLowerCase().includes(busq)) return false;
     return true;
   });
+  // Registrar la búsqueda (para ver qué productos busca la gente que no
+  // encuentra fácil, o qué es lo más pedido). Con debounce de 1s y solo
+  // cuando el término cambió de verdad — el input dispara esto en CADA
+  // letra que se tipea, no queremos un doc nuevo por cada tecla.
+  if(busq && busq.length>=3 && busq!==window._ultimaBusqRastreada){
+    window._ultimaBusqRastreada = busq;
+    clearTimeout(window._busqTrackTimer);
+    window._busqTrackTimer = setTimeout(function(){
+      if(typeof window._trackCatalogo==='function' && typeof window._idCatalogo==='function'){
+        window._trackCatalogo('catalogoBusquedas', window._idCatalogo(busq), { termino: busq });
+      }
+    }, 1000);
+  }
+
   var el=function(id){return document.getElementById(id);};
   if(el('cnt-todos')) el('cnt-todos').textContent=activos.length;
   if(el('cnt-Q'))     el('cnt-Q').textContent=activos.filter(function(p){return p.tipo==='Q';}).length;
@@ -854,6 +881,11 @@ async function confirmarSi(){
   if(!cliente) return;
   // Guardar sesión para que el carrito use el nombre
   _clienteSesion = { nom: cliente.nom, tel: cliente.tel };
+  // Registrar el login en "Mi Cuenta" (para saber quién entra seguido)
+  if(typeof window._trackCatalogo==='function' && typeof window._idCatalogo==='function'){
+    var idLogin = window._idCatalogo(normalizarTel(cliente.tel||'') || cliente.nom || '');
+    window._trackCatalogo('catalogoLogins', idLogin, { nombre: cliente.nom||'', tel: cliente.tel||'' });
+  }
   try{
     if(window._recordarTel){
       localStorage.setItem('hp-cat-cliente', JSON.stringify(_clienteSesion));
@@ -1274,7 +1306,7 @@ if(window._productos && window._productos.length){ renderCatalogo(); }
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, onSnapshot, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, onSnapshot, query, where, getDocs, doc as fbDocVisitas, setDoc, increment, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const app = initializeApp({
   apiKey: "AIzaSyA1PeDSpnLh2M8o9RQ5oDq3z3dYsxdC-NM",
@@ -1285,6 +1317,45 @@ const app = initializeApp({
   appId: "1:10572839956:web:45ac1af04a19432da83b01"
 });
 const db = getFirestore(app);
+
+// ── Contador de visitas (no invasivo, no bloquea nada si falla) ────
+// Un documento por día en 'visitasCatalogo', con un total que se va
+// sumando de a 1 en cada carga de la página. Se ve resumido dentro
+// de la app de escritorio, en Catálogo → Visitas.
+(function registrarVisitaCatalogo(){
+  try{
+    var fechaHoy = new Date().toISOString().substring(0,10);
+    setDoc(fbDocVisitas(db, 'visitasCatalogo', fechaHoy), {
+      total: increment(1),
+      ultimaVisita: serverTimestamp()
+    }, { merge:true }).catch(function(e){ console.warn('visita catálogo:', e); });
+  }catch(e){ /* nunca debe romper el catálogo */ }
+})();
+
+// ── Contador genérico para el resto de la analítica del catálogo ───
+// (búsquedas, logins de "Mi Cuenta", pedidos armados y enviados por
+// WhatsApp). Un doc por "cosa" (término buscado / teléfono / etc.),
+// con un total que se suma de a 1. Nunca puede romper el catálogo si
+// falla — siempre atrapado en try/catch por quien lo llama.
+window._trackCatalogo = function(coleccion, id, extra){
+  try{
+    var datos = Object.assign({ total: increment(1), ultima: serverTimestamp() }, extra || {});
+    setDoc(fbDocVisitas(db, coleccion, id), datos, { merge:true })
+      .catch(function(e){ console.warn('track catálogo ('+coleccion+'):', e); });
+  }catch(e){ /* nunca debe romper el catálogo */ }
+};
+
+// Id de documento "prolijo": minúsculas, sin acentos, sin caracteres
+// raros — para que no rompa como id de Firestore y agrupe bien
+// variantes con mayúsculas/tildes distintas.
+window._idCatalogo = function(txt){
+  var s = String(txt || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // saca tildes
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 80);
+  return s || 'sin_dato';
+};
 
 // ── Catálogo en tiempo real ──────────────────────────────────────
 onSnapshot(collection(db, 'productos'), function(snap){
